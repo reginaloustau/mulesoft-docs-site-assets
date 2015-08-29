@@ -1,0 +1,7 @@
+Sitemap: http://docs-stg.mulesoft.com/sitemap.xml
+
+User-agent: Swiftbot
+Disallow:
+
+User-agent: *
+Disallow: /
