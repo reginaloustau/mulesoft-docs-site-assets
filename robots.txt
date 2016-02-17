@@ -1,0 +1,1 @@
+Sitemap: https://docs.mulesoft.com/sitemap.xml
