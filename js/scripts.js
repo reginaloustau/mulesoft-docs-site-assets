@@ -174,7 +174,7 @@ function initSidebarNav(){
     var activeItem = $('.sidebar-nav nav li.active');
 
     if(activeItem.length > 0){
-        place_scroll_marker(activeItem, 'active-marker');
+        setTimeout(function() { place_scroll_marker(activeItem, 'active-marker'); }, 0);
     }
 
 
@@ -196,7 +196,7 @@ function initSidebarNav(){
 
         // Show/hide a sublist
         if (children.is(":visible")) {
-            children.hide('fast');
+            children.slideUp('fast');
             $(this).addClass('glyphicon-chevron-right').removeClass('glyphicon-chevron-down');
 
 
@@ -210,7 +210,7 @@ function initSidebarNav(){
 
 
         } else {
-            children.show(); // it was 'fast' before
+            children.slideDown(0); // it was 'fast' before
             $(this).addClass('glyphicon-chevron-down').removeClass('glyphicon-chevron-right');
             parent.addClass('expanded');
 
@@ -232,27 +232,27 @@ function initSidebarNav(){
 
     function collapseLists(speed) {
         $('.sidebar-nav nav li.parent_li').removeClass('expanded');
-        $('.sidebar-nav nav li.parent_li > ul').hide(speed);
+        $('.sidebar-nav nav li.parent_li > ul').slideUp(speed);
         $('.sidebar-nav nav li.parent_li > i').addClass('glyphicon-chevron-right').removeClass('glyphicon-chevron-down');
     }
 
 
     function openExpandedSubtree(){
-        $('.sidebar-nav nav li.parent_li > ul').hide();
+        $('.sidebar-nav nav li.parent_li > ul').hide(0);
         $('.sidebar-nav nav li.parent_li > i').addClass('glyphicon-chevron-right').removeClass('glyphicon-chevron-down');
-        $('.sidebar-nav nav li.parent_li.expanded > ul').show();
+        $('.sidebar-nav nav li.parent_li.expanded > ul').show(0);
         $('.sidebar-nav nav li.parent_li.expanded > i').addClass('glyphicon-chevron-down').removeClass('glyphicon-chevron-right');
     }
 
     function place_scroll_marker(elem, markerClass) {
         var offsetTop = elem.offset().top,
             offsetLeft = $(".tree").left,
-            link = elem.find('> a'),
-            linkHeight = link.height() + parseInt(elem.css('padding-top')) + parseInt(elem.css('padding-bottom')) + parseInt(link.css('padding-bottom')) + parseInt(link.css('padding-bottom'));
-            //linkHeight = link.height() + parseInt(link.css('padding-bottom')) + parseInt(link.css('padding-bottom'));
+            height = 0,
+            link = elem.find("> a"),
+            height = link.innerHeight() + parseInt(elem.css('padding-top'), 10) + parseInt(elem.css('padding-bottom'), 10);
         $(".sidebar-nav ." + markerClass).show();
         $(".sidebar-nav ." + markerClass).offset({top: offsetTop, left: offsetLeft});
-        $(".sidebar-nav ." + markerClass).height(linkHeight);
+        $(".sidebar-nav ." + markerClass).height(height);
     }
 
 }

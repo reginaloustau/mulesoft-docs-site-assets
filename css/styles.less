@@ -1,11 +1,4 @@
-@mulesoft-light-blue: #00A2DF;
-@mulesoft-light-grey: #E8E9EA;
-@mulesoft-semidark-grey: #989A9B;
-@mulesoft-dark-grey: #58595A;
-@mulesoft-links-unselected: #6B6C6D;
-@mulesoft-links-active: #474747;
-@mulesoft-really-dark-grey: #3A3B3C;
-@mulesoft-icon: @mulesoft-links-unselected;
+@import "variables.less";
 
 /* General customizations */
 @font-face {
@@ -26,7 +19,7 @@
 }
 
 @font-face {
-  font-family: 'openSans';
+  font-family: 'OpenSans';
 
   src: url('../fonts/open_sans/OpenSans-Regular-webfont.eot');
   src: url('../fonts/open_sans/OpenSans-Regular-webfont.eot?#iefix') format('embedded-opentype'),
@@ -101,11 +94,18 @@ a:focus {
   background: url('../img/fancybox_overlay.png');
 }
 
-
-/* Redefine Bootstrap's container default width */
-
+@media (min-width: 768px) {
+  .container {
+    width: auto;
+  }
+}
 @media (min-width: 1200px) {
   .container {
-    width: 1024px;
+    width: 1170px;
+  }
+}
+@media (min-width: 1440px) {
+  .container {
+    width: 1400px;
   }
 }
