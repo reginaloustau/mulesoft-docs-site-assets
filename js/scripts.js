@@ -181,41 +181,32 @@ function initSidebarNav(){
 
 
     $('.sidebar-nav nav li.parent_li > i').on('click', function (e) {
-
-
         var parent = $(this).parent('li.parent_li'),
             children = parent.find('> ul');
-
-        // Set active category
-        if(parent.parent().hasClass('tree')) {
-            collapseLists('fast');
-
-        }
 
         place_scroll_marker(parent, 'marker');
 
         // Show/hide a sublist
-        if (children.is(":visible")) {
+        if (children.is(':visible')) {
             children.slideUp('fast');
             $(this).addClass('glyphicon-chevron-right').removeClass('glyphicon-chevron-down');
-
 
             /* Remove active trail from the node to the childrens */
             parent.removeClass('expanded');
             parent.find('li.expanded').removeClass('expanded');
 
-            //Hide active-marker
-            if(children.find('.active'))
-                $('.active-marker').hide('fast');
-
+            // Hide active-marker
+            if (children.find('.active').length) {
+                $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 100);
+            }
 
         } else {
-            children.slideDown(0); // it was 'fast' before
+            children.slideDown('fast');
             $(this).addClass('glyphicon-chevron-down').removeClass('glyphicon-chevron-right');
             parent.addClass('expanded');
 
-            if(children.find('.active').is(':visible')){
-                $('.active-marker').show('fast');
+            if (children.find('.active').is(':visible')){
+                $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 250);
             }
         }
         //resizeArticleContent();
@@ -226,16 +217,10 @@ function initSidebarNav(){
         $('.marker').show();
         place_scroll_marker($(this), "marker");
     },function() {
-        if(!$('.tree').is(':hover'))
+        if (!$('.tree').is(':hover')) {
             $('.marker').hide();
+        }
     });
-
-    function collapseLists(speed) {
-        $('.sidebar-nav nav li.parent_li').removeClass('expanded');
-        $('.sidebar-nav nav li.parent_li > ul').slideUp(speed);
-        $('.sidebar-nav nav li.parent_li > i').addClass('glyphicon-chevron-right').removeClass('glyphicon-chevron-down');
-    }
-
 
     function openExpandedSubtree(){
         $('.sidebar-nav nav li.parent_li > ul').hide(0);
