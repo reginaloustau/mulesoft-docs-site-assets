@@ -117,7 +117,14 @@
               <input type="submit" value="Submit">
           </form>
       </div>
-      <div class="toolbar-dropdown helpful">
+      <div class="toolbar col-md-5 col-xs-4">
+          <div class="toolbar-dropdown show-hide-sidebar">
+              <a href="#" class="tree-icon glyphicon glyphicon-th-list"><span>Nav</span></a>
+          </div>
+          <div class="toolbar-dropdown edit-github">
+              <a href="{{ page.github-link }}" target="_blank"><span>Edit on GitHub</span></a>
+          </div>
+          <div class="toolbar-dropdown helpful">
            <!-- hide this
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-helpful" data-toggle="dropdown" aria-expanded="true">
                 <i class="star-empty"></i>
