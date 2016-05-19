@@ -60,7 +60,7 @@
     <div id="block-block-1" class="block block-block first odd">
 
 
-  <a class="green-button" href="https://anypoint.mulesoft.com/login/#/signup?apintent=dmc_generic">Get started</a>
+  <a class="green-button" href="https://anypoint.mulesoft.com/#/signup?apintent=dmc_generic">Get started</a>
 
 <div class="mulecom"><a href="https://www.mulesoft.com">MuleSoft.com</a></div>
 </div>
@@ -69,7 +69,7 @@
         <h2 class="block__title block-title">Main menu</h2>
 
   <ul class="menu"><li class="menu__item is-leaf first leaf"><a href="https://developer.mulesoft.com/anypoint-platform" title="" class="menu__link">Platform</a></li>
-<li class="menu__item is-leaf leaf"><a href="https://docs.mulesoft.com" title="" class="menu__link active">Documentation</a></li>
+<li class="menu__item is-leaf leaf"><a href="https://developer.mulesoft.com/docs" title="" class="menu__link active">Documentation</a></li>
 <li class="menu__item is-leaf leaf"><a href="https://developer.mulesoft.com/community" title="" class="menu__link">Community</a></li>
 <li class="menu__item is-leaf last leaf"><a href="http://blog.mulesoft.com/" title="" class="menu__link">Blog</a></li>
 </ul>
@@ -117,35 +117,45 @@
               <input type="submit" value="Submit">
           </form>
       </div>
-      <div class="toolbar col-md-4 col-xs-4">
-          <div class="toolbar-dropdown show-hide-sidebar">
-              <a href="#" class="tree-icon glyphicon glyphicon-th-list"><span>Nav</span></a>
-          </div>
-          <div class="toolbar-dropdown edit-github">
-              <a href="{{ page.github-link }}" target="_blank"><span>Edit on GitHub</span></a>
-          </div>
-          <div class="toolbar-dropdown helpful">
-              <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-helpful" data-toggle="dropdown" aria-expanded="true">
-                  <i class="star-empty"></i><span>Helpful?</span>
-              </button>
+      <div class="toolbar-dropdown helpful">
+           <!-- hide this
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-helpful" data-toggle="dropdown" aria-expanded="true">
+                <i class="star-empty"></i>
+                <i class="star-empty"></i>
+                <i class="star-empty"></i>
+                <i class="star-empty"></i>
+                <i class="star-empty"></i>
+                <span>Helpful?</span>
 
-              <ul class="dropdown-menu" role="menu" aria-labelledby="dropdown-helpful">
-                  <li role="presentation">
-                      <i class="star-empty"></i>
-                      <i class="star-empty"></i>
-                      <i class="star-empty"></i>
-                      <i class="star-empty"></i>
-                      <i class="star-empty"></i>
-                  </li>
-                  <li role="message">
-                    <span class="error">Was this topic helpful?</span>
-                  </li>
-                  <li role="presentation"><textarea name="feedback-textarea" id="" cols="30" rows="5" placeholder="Feedback..."></textarea></li>
-                  <li role="presentation"><input type="submit" value="Submit"></li>
-              </ul>
-          </div>
+            </button> -->
+            <!--<div class="feedback-box">-->
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-helpful" data-toggle="dropdown" aria-expanded="true">
+                    <ul  role="menu" aria-labelledby="dropdown-helpful">
+                        <li role="presentation" data-toggle="dropdown"  >
+                            <i class="star-empty"></i>
+                            <i class="star-empty"></i>
+                            <i class="star-empty"></i>
+                            <i class="star-empty"></i>
+                            <i class="star-empty"></i>
+                        </li>
+                    </ul>
+                </button>
+                <ul class="dropdown-menu open" role="menu" aria-labelledby="dropdown-helpful">
+                    <li role="message">
+                      <div class="thankyou-message">
+                          <p>Thank you!</p>
+                          <button class="btn">Close</button>
+                      </div>
+                      <!--<span class="error">Was this topic helpful?</span>-->
+                    </li>
+                    <li role="presentation"><textarea name="feedback-textarea" id="" cols="30" rows="5" placeholder="Was this topic helpful?"></textarea></li>
+                    <li role="presentation"><input type="button" value="Cancel"></li>
+                    <li role="presentation"><input type="submit" value="Submit"></li>
+                </ul>
+            <!--</div>-->
+        </div>
       </div>
-      <div class="version-selector col-md-5 col-xs-12">
+      <div class="version-selector col-md-4 col-xs-12">
           {{ page.version }}
       </div>
     </div>
@@ -166,7 +176,7 @@
 
         <!-- END older version notification -->
         <!-- START article content -->
-        <div class="article-content col-md-7">
+        <div class="article-content col-md-8">
           {{ page.breadcrumb }}
           <h1>{{ page.title }}</h1>
           {{ page.content }}
@@ -238,7 +248,7 @@
             <div class="terms-conditions temp">
 
 
-              MuleSoft provides the most widely used integration platform for connecting SaaS and enterprise applications in the cloud and on-premises. Delivered as a packaged integration experience, CloudHub™ and Mule ESB™ (Enterprise Service Bus) are built on proven open source technology for the fastest, most reliable on-premises and cloud integration without vendor lock-in. Read our <a href="https://www.mulesoft.com/privacy-policy" target="_blank"> privacy policy</a>.        </div>
+              MuleSoft provides the most widely used integration platform for connecting SaaS and enterprise applications in the cloud and on-premise. Delivered as a packaged integration experience, CloudHub™ and Mule ESB™ (Enterprise Service Bus) are built on proven open source technology for the fastest, most reliable on-premise and cloud integration without vendor lock-in. Read our <a href="https://www.mulesoft.com/privacy-policy" target="_blank"> privacy policy</a>.        </div>
 
           </div>
 
@@ -265,9 +275,25 @@
 
       var ratingId = Math.floor((Math.random() * 9999999999) + 1);
 
+      //setup stars to open/close dropdown
+      $('#dropdown-helpful').click(function() {
+          $('.open.dropdown-menu').show();
+      });
+      $('.helpful input[type="button"]').click(function(){
+          $('.open.dropdown-menu').hide();
+      });
+      $('.thankyou-message button').click(function () {
+          $('.helpful .thankyou-message').hide();
+          $('.open.dropdown-menu').hide();
+      });
+
+
       // Star rating highlight and submit
       $('.helpful li i').click(function(){
-          $('.helpful li i').removeClass('star').addClass('star-empty');
+          if( $('.helpful input[type="submit"]').prop('disabled') ) {
+            $('.helpful .thankyou-message').show();
+          }
+              $('.helpful li i').removeClass('star').addClass('star-empty');
           $(this)
               .removeClass('star-empty').addClass('star')
               .prevAll().removeClass('star-empty').addClass('star');
@@ -317,6 +343,7 @@
               complete: function() {
                   if(comment != 'star-only') {
                       $('.helpful .error').html('Thank you for your feedback!').attr('style', 'color: #16BB64;');
+                      $('.helpful .thankyou-message').show();
                       $('.helpful input[type="submit"]').attr('disabled', 'disabled');
                   }
                   else {
