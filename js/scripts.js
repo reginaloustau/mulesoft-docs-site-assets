@@ -37,26 +37,27 @@ function initSubHeader(){
         scrollbarAdjusting();
     });
 
-    $(window).scroll(function () {
-        var y = $(this).scrollTop();
+    $(window).scroll(function() {
+        var subheader = $('.sub-header'),
+            container = $('.container');
 
-        if (y>=$('.header').height()) {
-            $('.sub-header').css({
+        if ($(this).scrollTop() >= $('.header').height()) {
+            subheader.css({
                 'position': 'fixed',
                 'z-index': '999',
                 'top': '0',
-                'width': $('.container').css('width')
+                'width': container.css('width')
             });
-
+            //container.css('margin-top', subheader.height());
+            container.addClass('sub-header-fixed');
         }
         else {
-            $('.sub-header').css('position', 'static');
+            subheader.css('position', 'static');
+            //container.css('margin-top', 0);
+            container.removeClass('sub-header-fixed');
             $('.tree-icon').css('display', 'inline-block');
-
         }
-
     });
-
 
     //Avoid Bootstrap dropdown auto-close when clicking
     $('.toolbar-dropdown ul.dropdown-menu').on('click', function(event) {
