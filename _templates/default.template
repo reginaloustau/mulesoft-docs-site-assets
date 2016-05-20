@@ -125,41 +125,29 @@
               <a href="{{ page.github-link }}" target="_blank"><span>Edit on GitHub</span></a>
           </div>
           <div class="toolbar-dropdown helpful">
-           <!-- hide this
-            <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-helpful" data-toggle="dropdown" aria-expanded="true">
-                <i class="star-empty"></i>
-                <i class="star-empty"></i>
-                <i class="star-empty"></i>
-                <i class="star-empty"></i>
-                <i class="star-empty"></i>
-                <span>Helpful?</span>
-
-            </button> -->
-            <!--<div class="feedback-box">-->
-                <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-helpful" data-toggle="dropdown" aria-expanded="true">
-                    <ul  role="menu" aria-labelledby="dropdown-helpful">
-                        <li role="presentation" data-toggle="dropdown"  >
-                            <i class="star-empty"></i>
-                            <i class="star-empty"></i>
-                            <i class="star-empty"></i>
-                            <i class="star-empty"></i>
-                            <i class="star-empty"></i>
-                        </li>
-                    </ul>
-                </button>
-                <ul class="dropdown-menu open" role="menu" aria-labelledby="dropdown-helpful">
-                    <li role="message">
-                      <div class="thankyou-message">
-                          <p>Thank you!</p>
-                          <button class="btn">Close</button>
-                      </div>
-                      <!--<span class="error">Was this topic helpful?</span>-->
-                    </li>
-                    <li role="presentation"><textarea name="feedback-textarea" id="" cols="30" rows="5" placeholder="Was this topic helpful?"></textarea></li>
-                    <li role="presentation"><input type="button" value="Cancel"></li>
-                    <li role="presentation"><input type="submit" value="Submit"></li>
-                </ul>
-            <!--</div>-->
+              <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-helpful">
+                  <ul  role="menu" aria-labelledby="dropdown-helpful">
+                      <li role="presentation">
+                          <i class="star-empty"></i>
+                          <i class="star-empty"></i>
+                          <i class="star-empty"></i>
+                          <i class="star-empty"></i>
+                          <i class="star-empty"></i>
+                      </li>
+                  </ul>
+              </button>
+              <ul class="dropdown-menu open" role="menu" aria-labelledby="dropdown-helpful">
+                  <li role="message">
+                    <div class="thankyou-message">
+                        <p>Thank you!</p>
+                        <button class="btn">Close</button>
+                    </div>
+                    <span class="error"></span>
+                  </li>
+                  <li role="presentation"><textarea name="feedback-textarea" cols="30" rows="5" placeholder="Was this topic helpful?"></textarea></li>
+                  <li role="presentation"><input type="button" value="Cancel"></li>
+                  <li role="presentation"><input type="submit" value="Submit"></li>
+              </ul>
         </div>
       </div>
       <div class="version-selector col-md-4 col-xs-12">
@@ -183,7 +171,7 @@
 
         <!-- END older version notification -->
         <!-- START article content -->
-        <div class="article-content col-md-8">
+        <div class="article-content col-md-7">
           {{ page.breadcrumb }}
           <h1>{{ page.title }}</h1>
           {{ page.content }}
@@ -294,7 +282,6 @@
           $('.open.dropdown-menu').hide();
       });
 
-
       // Star rating highlight and submit
       $('.helpful li i').click(function(){
           if( $('.helpful input[type="submit"]').prop('disabled') ) {
@@ -353,9 +340,9 @@
                       $('.helpful .thankyou-message').show();
                       $('.helpful input[type="submit"]').attr('disabled', 'disabled');
                   }
-                  else {
-                      $('.helpful .error').html('Was this topic helpful?').attr('style', 'color: #58595a;');
-                  }
+                  //else {
+                  //    $('.helpful .error').html('Was this topic helpful?').attr('style', 'color: #58595a;');
+                  //}
               }
           });
       }
