@@ -59,11 +59,6 @@ function initSubHeader(){
         }
     });
 
-    //Avoid Bootstrap dropdown auto-close when clicking
-    $('.toolbar-dropdown ul.dropdown-menu').on('click', function(event) {
-        event.stopPropagation();
-    });
-
     //Tree Toggle button
     $('.tree-icon').unbind('click').click(function(e){
         e.preventDefault();

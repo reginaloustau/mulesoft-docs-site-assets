@@ -74,11 +74,11 @@
     font-size: 13px;
     color: @mulesoft-dark-grey;
 
-    .toolbar-dropdown{
+    .toolbar-dropdown {
       display: inline-block;
 
       .btn {
-        padding: 6px;
+        padding: 0;
         font-size: 13px !important;
         color: @mulesoft-dark-grey;
         span {
@@ -86,33 +86,20 @@
         }
       }
 
-      .dropdown-toggle{
+      .dropdown-toggle {
+        margin: 7px 10px;
         border: none;
         background: transparent;
-
-        i.star-empty {
-          margin-right: 5px;
-        }
-
-        i.glyphicon:before {
-          content:"";
-          display: inline-block;
-          width: 17px;
-          height: 17px;
-          opacity: .5;
-          margin-right: 2px;
-        }
-
-        &:focus{
+        &:focus {
           outline: 0;
           box-shadow: none;
         }
-        &:hover{
+        &:hover {
           color:@mulesoft-really-dark-grey;
-
-          > i.glyphicon:before {
-            opacity: .7;
-          }
+        }
+        ul {
+          margin: 0;
+          list-style: none;
         }
       }
 
@@ -179,14 +166,13 @@
       }
       &.helpful {
         .dropdown-menu {
-          left: 150px;
+          left: 140px;
         }
         i.star, i.star-empty {
           background: url('../img/blue-star.svg') left center no-repeat;
           width: 15px;
           height: 15px;
           display: inline-block;
-          vertical-align: top;
           cursor: pointer;
         }
         i.star-empty {
@@ -200,24 +186,44 @@
         li {
           margin-bottom: 0;
           &:first-child {
-            height: 20px;
             i.star, i.star-empty {
               background-size: 15px 15px;
               float: left;
               width: 1.415em;
             }
-            &::after {
-              content: '';
-              display: table;
-              clear: left;
+            i:last-child {
+              width: 15px;
             }
           }
         }
-        input[type="submit"] {
+        .thankyou-message {
+          p {
+            font-size: 1.2em;
+            float: left;
+            line-height: 1;
+            margin-bottom: 0;
+            padding-top: 0.4em;
+          }
+          button.btn {
+            float: right;
+          }
+          &::after {
+            content: '';
+            display: table;
+            clear: both;
+            padding-bottom: 5px;
+          }
+        }
+        input[type="submit"], input[type="button"], .thankyou-message button.btn {
+          border-radius: 0;
           background-color: #e8e9ea;
           border: none;
           padding: 5px 10px;
           color: #58595a;
+          line-height: inherit;
+        }
+        input[type="button"] {
+          margin-left: 0.5em;
         }
         textarea {
           margin: 5px 0px;
