@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" enable-background="new 0 0 160 160" viewBox="0 0 160 160" y="0px" x="0px" version="1.1">
+    <g>
+        <rect fill="none" height="160" width="160" x="0"/>
+        <g>
+            <rect fill="none" height="160" width="160" x="0"/>
+            <rect style="fill:#000000" transform="matrix(0,1,-1,0,0,0)" height="101.7" width="20" y="-130.85001" x="69.137009"/>
+            <rect transform="matrix(0,1,-1,0,0,0)" height="101.7" width="20" y="-130.85001" x="28.273544" style="fill:#000000"/>
+            <rect transform="matrix(0,1,-1,0,0,0)" height="101.7" width="20" y="-130.85001" x="110.00047" style="fill:#000000"/>
+        </g>
+    </g>
+</svg>

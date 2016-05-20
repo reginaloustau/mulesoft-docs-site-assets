@@ -111,13 +111,13 @@
 
 <div class="container">
     <div class="row sub-header" data-swiftype-index='false'>
-      <div class="search-box col-md-3 col-xs-8">
+      <div class="search-box col-md-3 col-xs-6">
           <form action="">
               <i class="glyphicon glyphicon-search"></i><input class="search-field st-ui-search-input st-default-search-input" type="text" name="search-docs" placeholder="Search the docs">
               <input type="submit" value="Submit">
           </form>
       </div>
-      <div class="toolbar col-md-5 col-xs-4">
+      <div class="toolbar col-md-5 col-xs-6">
           <div class="toolbar-dropdown show-hide-sidebar">
               <a href="#" class="tree-icon glyphicon glyphicon-th-list"><span>Nav</span></a>
           </div>
