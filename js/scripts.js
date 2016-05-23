@@ -111,22 +111,37 @@ function toggleSidebarNav(e) {
     if (e) e.preventDefault();
     (e ? $(this) : $('.tree-icon')).toggleClass('tree-closed');
     var sidebarNav = $('.sidebar-nav'),
-        sidebarNavOpen = sidebarNav.is(':visible');
-    if (sidebarNavOpen) { // closing
-        var nav = sidebarNav.find('nav');
-        nav.css('width', nav.width());
-        sidebarNav.animate({ width: 'toggle' }, 150, function() {
-            $('.article-content').removeClass('col-md-7').addClass('col-md-10');
-        });
+        sidebarNavOpen = sidebarNav.is(':visible'),
+        sidebarNavContent = sidebarNav.find('nav');
+        toc = $('.scroll-menu'),
+        articleContent = $('.article-content'),
+        articleCols = {},
+        speed = 250;
+    // NOTE keep toc from jumping while width of sidebar transitions
+    toc.css('left', toc.offset().left);
+    if (sidebarNavOpen) { // close
+        articleCols = { from: 'col-md-7', to: 'col-md-10' }
+        sidebarNavContent.css('width', sidebarNavContent[0].getBoundingClientRect().width);
     }
-    else { // opening
-        $('.article-content').removeClass('col-md-10').addClass('col-md-7');
-        sidebarNav.animate({ width: 'toggle' }, 150, function() {
-            sidebarNav.find('nav').css('width', '');
-            // FIXME think about whether we can skip this step in certain cases; perhaps first time only?
-            place_scroll_marker($('.sidebar-nav nav li.active'), 'active-marker');
-        });
+    else { // open
+        articleCols = { from: 'col-md-10', to: 'col-md-7' }
+        sidebarNav.show();
+        sidebarNavContent.css('width', sidebarNavContent[0].getBoundingClientRect().width);
+        sidebarNav.hide();
     }
+    var fromContentWidth = articleContent[0].getBoundingClientRect().width;
+    articleContent.removeClass(articleCols.from).addClass(articleCols.to);
+    var toContentWidth = articleContent[0].getBoundingClientRect().width;
+    articleContent.css('width', fromContentWidth);
+    sidebarNav.animate({ width: 'toggle', opacity: 'toggle' }, { duration: speed, queue: false, complete: function() {
+        toc.css('left', '');
+        sidebarNavContent.css('width', '');
+        // FIXME think about whether we can skip this step in certain cases; perhaps first time only?
+        if (!sidebarNavOpen) place_scroll_marker(sidebarNavContent.find('li.active'), 'active-marker');
+    }});
+    articleContent.animate({ width: toContentWidth }, { duration: speed, queue: false, complete: function() {
+        articleContent.css('width', '');
+    }});
 }
 
 function initScrollMenu(){
