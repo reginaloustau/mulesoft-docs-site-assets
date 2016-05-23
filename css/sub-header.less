@@ -1,9 +1,5 @@
 @import "variables.less";
 
-.container.sub-header-fixed {
-  margin-top: 70px;
-}
-
 .sub-header {
     font-family: "OpenSans", Helvetica, Arial, sans-serif;
 
@@ -329,8 +325,20 @@
 
 }
 
+.container.sub-header-fixed {
+  margin-top: 70px;
+}
+
 @media (max-width: 992px) {
+  .container.sub-header-fixed {
+    margin-top: 140px;
+  }
+
   .sub-header {
+    .show-hide-sidebar a.tree-icon:before {
+      background-image: url('../img/nav-menu.svg') !important;
+      margin-top: 0 !important;
+    }
 
     .search-box{
       .search-field {
@@ -338,9 +346,6 @@
         &:hover {
           border-bottom: 0px;
         }
-      }
-      a > .tree-icon{
-        margin-top:0;
       }
       &.fullwidth{
         width:100%;
@@ -355,7 +360,9 @@
       .toolbar-dropdown{
 
         .btn {
-          padding: 2px;
+          padding: 5px 0;
+          margin-left: 0;
+          margin-right: 0;
           font-size: 13px !important;
           span {
             font-size: 13px !important;

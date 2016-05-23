@@ -1,3 +1,4 @@
+var SCREEN_SMALL_MAX = 992;
 
 /* Initialization */
 $(function() {
@@ -29,12 +30,16 @@ function initFancyBox () {
     $(".fancybox").fancybox();
 }
 
-function initSubHeader(){
+function initSubHeader() {
+    if (window.innerWidth < SCREEN_SMALL_MAX) toggleSidebarNav();
 
     //Fixed subheader
     $(window).resize(function(){
         $('.sub-header').css('width', $('.container').css('width'));
         scrollbarAdjusting();
+        if (window.innerWidth < SCREEN_SMALL_MAX && !$('.tree-icon').hasClass('tree-closed')) {
+            toggleSidebarNav();
+        }
     });
 
     $(window).scroll(function() {
@@ -60,19 +65,7 @@ function initSubHeader(){
     });
 
     //Tree Toggle button
-    $('.tree-icon').unbind('click').click(function(e){
-        e.preventDefault();
-        $(this).toggleClass('tree-closed');
-        $('.version-selector').toggleClass('hidecontent');
-        $('.sidebar-nav').animate({width: "toggle"}, 150, function(){
-            if($('.article-content').hasClass('col-md-7')){
-                $('.article-content').removeClass('col-md-7').addClass('col-md-10');
-            }
-            else {
-                $('.article-content').removeClass('col-md-10').addClass('col-md-7');
-            }
-        });
-    });
+    $('.tree-icon').unbind('click').click(toggleSidebarNav);
 
     //Remove Search input box placeholder on focus
     $('.search-field').focus(function(){
@@ -111,6 +104,28 @@ function scrollbarAdjusting(){
     else {
         $('.scroll-menu').css('position','fixed');
         $('.scroll-menu').css('top', '120px');
+    }
+}
+
+function toggleSidebarNav(e) {
+    if (e) e.preventDefault();
+    (e ? $(this) : $('.tree-icon')).toggleClass('tree-closed');
+    var sidebarNav = $('.sidebar-nav'),
+        sidebarNavOpen = sidebarNav.is(':visible');
+    if (sidebarNavOpen) { // closing
+        var nav = sidebarNav.find('nav');
+        nav.css('width', nav.width());
+        sidebarNav.animate({ width: 'toggle' }, 150, function() {
+            $('.article-content').removeClass('col-md-7').addClass('col-md-10');
+        });
+    }
+    else { // opening
+        $('.article-content').removeClass('col-md-10').addClass('col-md-7');
+        sidebarNav.animate({ width: 'toggle' }, 150, function() {
+            sidebarNav.find('nav').css('width', '');
+            // FIXME think about whether we can skip this step in certain cases; perhaps first time only?
+            place_scroll_marker($('.sidebar-nav nav li.active'), 'active-marker');
+        });
     }
 }
 
@@ -165,16 +180,10 @@ function initSidebarNav(){
     $('.sidebar-nav nav li:has(ul)').addClass('parent_li');
     openExpandedSubtree();
 
-
-    //Active item
-    var activeItem = $('.sidebar-nav nav li.active');
-
-    if(activeItem.length > 0){
-        setTimeout(function() { place_scroll_marker(activeItem, 'active-marker'); }, 0);
+    if (window.innerWidth >= SCREEN_SMALL_MAX) {
+        // FIXME can we make it work without this setTimeout?
+        setTimeout(function() { place_scroll_marker($('.sidebar-nav nav li.active'), 'active-marker'); }, 0);
     }
-
-
-
 
     $('.sidebar-nav nav li.parent_li > i').on('click', function (e) {
         var parent = $(this).parent('li.parent_li'),
@@ -205,13 +214,12 @@ function initSidebarNav(){
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 250);
             }
         }
-        //resizeArticleContent();
         e.stopPropagation();
     });
 
     $('.sidebar-nav nav li').hover(function() {
         $('.marker').show();
-        place_scroll_marker($(this), "marker");
+        place_scroll_marker($(this), 'marker');
     },function() {
         if (!$('.tree').is(':hover')) {
             $('.marker').hide();
@@ -224,21 +232,19 @@ function initSidebarNav(){
         $('.sidebar-nav nav li.parent_li.expanded > ul').show(0);
         $('.sidebar-nav nav li.parent_li.expanded > i').addClass('glyphicon-chevron-down').removeClass('glyphicon-chevron-right');
     }
-
-    function place_scroll_marker(elem, markerClass) {
-        var offsetTop = elem.offset().top,
-            offsetLeft = $(".tree").left,
-            height = 0,
-            link = elem.find("> a"),
-            height = link.innerHeight() + parseInt(elem.css('padding-top'), 10) + parseInt(elem.css('padding-bottom'), 10);
-        $(".sidebar-nav ." + markerClass).show();
-        $(".sidebar-nav ." + markerClass).offset({top: offsetTop, left: offsetLeft});
-        $(".sidebar-nav ." + markerClass).height(height);
-    }
-
 }
 
-
+function place_scroll_marker(elem, markerClass) {
+    if (elem.length == 0) return;
+    var offsetTop = elem.offset().top,
+        offsetLeft = $(".tree").left,
+        height = 0,
+        link = elem.find("> a"),
+        height = link.innerHeight() + parseInt(elem.css('padding-top'), 10) + parseInt(elem.css('padding-bottom'), 10);
+    $(".sidebar-nav ." + markerClass).show();
+    $(".sidebar-nav ." + markerClass).offset({top: offsetTop, left: offsetLeft});
+    $(".sidebar-nav ." + markerClass).height(height);
+}
 
 function fixEncoding(){
     $('.article-content .listingblock .CodeRay .entity').each(function(){
