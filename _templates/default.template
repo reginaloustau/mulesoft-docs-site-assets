@@ -125,8 +125,8 @@
               <a href="{{ page.github-link }}" target="_blank"><span>Edit on GitHub</span></a>
           </div>
           <div class="toolbar-dropdown helpful">
-              <button class="btn btn-default dropdown-toggle" type="button" id="dropdown-helpful">
-                  <ul  role="menu" aria-labelledby="dropdown-helpful">
+              <div class="btn btn-default dropdown-toggle" id="dropdown-helpful">
+                  <ul role="menu" aria-labelledby="dropdown-helpful">
                       <li role="presentation">
                           <i class="star-empty"></i>
                           <i class="star-empty"></i>
@@ -135,7 +135,7 @@
                           <i class="star-empty"></i>
                       </li>
                   </ul>
-              </button>
+              </div>
               <ul class="dropdown-menu open" role="menu" aria-labelledby="dropdown-helpful">
                   <li role="message">
                     <div class="thankyou-message">
