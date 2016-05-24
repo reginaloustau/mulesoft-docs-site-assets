@@ -86,7 +86,9 @@
         margin: 7px 10px;
         border: none;
         background: transparent;
-        &:focus {
+        z-index: 1001;
+        position: relative;
+        &:active, &:focus {
           outline: 0;
           box-shadow: none;
         }
@@ -100,30 +102,24 @@
       }
 
       .dropdown-menu {
-        padding: 20px;
+        padding: 0 15px 15px 15px;
         position: absolute;
         top: 100%;
         z-index: 1000;
-        float: left;
         margin: 0px;
-        min-width: 160px;
         font-size: 14px;
         text-align: left;
         list-style: none;
         background-color: #fff;
         -webkit-background-clip: padding-box;
         background-clip: padding-box;
-        border: 1px solid @mulesoft-semidark-grey;
-        border-radius: 0px;
+        //border: 1px solid @mulesoft-semidark-grey;
+        border: 0;
+        border-radius: 0;
         -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
         box-shadow: 0 6px 12px rgba(0,0,0,.175);
         font-family: "OpenSans";
         font-size: 13px;
-
-        input {
-          float: right;
-        }
-
       }
       &.show-hide-sidebar {
         vertical-align: middle;
@@ -161,8 +157,11 @@
         }
       }
       &.helpful {
+        position: relative;
         .dropdown-menu {
-          left: 140px;
+          left: -68px;
+          top: -17px;
+          padding-top: 69px;
         }
         i.star, i.star-empty {
           background: url('../img/blue-star.svg') left center no-repeat;
@@ -192,56 +191,73 @@
             }
           }
         }
+        .btn {
+          border: 0;
+          border-radius: 0;
+          outline: 0;
+          &:active, &:focus {
+            outline: 0;
+          }
+        }
         .thankyou-message {
           p {
-            font-size: 1.2em;
-            float: left;
+            color: #5a595a;
+            border-top: 1px solid #DBDBDB;
+            font-size: 1.7em;
             line-height: 1;
             margin-bottom: 0;
-            padding-top: 0.4em;
+            padding: 2em 0;
+            text-align: center;
           }
-          button.btn {
-            float: right;
-          }
-          &::after {
-            content: '';
-            display: table;
-            clear: both;
-            padding-bottom: 5px;
+          .btn {
+            color: #6b6c6b;
+            display: block;
+            font-size: 14px !important;
+            margin: 0 auto 5px auto;
+            &:hover, &:active, &:focus {
+              background-color: transparent;
+              box-shadow: none;
+            }
           }
         }
-        input[type="submit"], input[type="button"], .thankyou-message button.btn {
-          border-radius: 0;
-          background-color: #e8e9ea;
-          border: none;
-          padding: 5px 10px;
-          color: #58595a;
-          line-height: inherit;
-        }
-        input[type="button"] {
-          margin-left: 0.5em;
+        .thankyou-message p, textarea {
+          width: 220px;
         }
         textarea {
-          margin: 5px 0px;
-          outline: 0px;
+          border-radius: 0;
         }
-        textarea:focus {
-          outline: 0px;
-        }
-      }
-
-      &.export{
-        .dropdown-menu{
-          left: 245px;
-
-          li:first-child {
-            margin-top: -15px;
+        .btn-group {
+          display: -ms-flexbox;
+          display: -webkit-flex;
+          display: flex;
+          input.btn {
+            width: 50%;
           }
         }
-        i.glyphicon-log-out:before{
-          background: url('../img/link.svg') center 2px no-repeat;
+        input.btn {
+          line-height: inherit;
+          padding: 5px 10px;
+          &.btn-default:focus, &.btn-default:hover {
+            background-color: transparent;
+          }
+          &.btn-primary {
+            background-color: #999a9c;
+            color: #fff;
+          }
         }
       }
+
+      //&.export{
+      //  .dropdown-menu{
+      //    left: 245px;
+      //    li:first-child {
+      //      margin-top: -15px;
+      //    }
+      //  }
+      //  i.glyphicon-log-out:before{
+      //    background: url('../img/link.svg') center 2px no-repeat;
+      //  }
+      //}
 
       &.edit-github{
         a{
@@ -385,9 +401,9 @@
         &.edit-github span{
           display: none;
         }
-        &.helpful .dropdown-menu,
-        &.export .dropdown-menu{
-          right: 0;
+        //&.export .dropdown-menu,
+        &.helpful .dropdown-menu {
+          right: -15px;
           left: auto;
         }
       }

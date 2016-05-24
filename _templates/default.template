@@ -137,18 +137,24 @@
                   </ul>
               </div>
               <ul class="dropdown-menu open" role="menu" aria-labelledby="dropdown-helpful">
-                  <li role="message">
-                    <div class="thankyou-message">
-                        <p>Thank you!</p>
-                        <button class="btn">Close</button>
-                    </div>
-                    <span class="error"></span>
+                  <li role="presentation" class="feedback-form">
+                      <span class="error"></span>
+                      <div class="form-group">
+                          <textarea name="feedback-textarea" class="form-control" rows="5" placeholder="Was this topic helpful?"></textarea>
+                      </div>
+                      <div class="btn-group">
+                          <input class="btn btn-default dismiss" type="button" value="Cancel">
+                          <input class="btn btn-primary" type="submit" value="Submit">
+                      </div>
                   </li>
-                  <li role="presentation"><textarea name="feedback-textarea" cols="30" rows="5" placeholder="Was this topic helpful?"></textarea></li>
-                  <li role="presentation"><input type="button" value="Cancel"></li>
-                  <li role="presentation"><input type="submit" value="Submit"></li>
+                  <li role="presentation" class="thankyou-message">
+                    <div>
+                        <p>Thank you!</p>
+                        <button class="btn btn-default dismiss">Close</button>
+                    </div>
+                  </li>
               </ul>
-        </div>
+          </div>
       </div>
       <div class="version-selector col-md-4 col-xs-12">
           {{ page.version }}
@@ -270,24 +276,24 @@
 
       var ratingId = Math.floor((Math.random() * 9999999999) + 1);
 
-      //setup stars to open/close dropdown
       $('#dropdown-helpful').click(function() {
           $('.open.dropdown-menu').show();
       });
-      $('.helpful input[type="button"]').click(function(){
-          $('.open.dropdown-menu').hide();
-      });
-      $('.thankyou-message button').click(function () {
-          $('.helpful .thankyou-message').hide();
+      $('.helpful .dismiss').click(function(){
           $('.open.dropdown-menu').hide();
       });
 
       // Star rating highlight and submit
-      $('.helpful li i').click(function(){
-          if( $('.helpful input[type="submit"]').prop('disabled') ) {
+      $('.helpful li i').click(function() {
+          if ($('.helpful input[type="submit"]').prop('disabled')) {
+            $('.helpful .feedback-form').hide();
             $('.helpful .thankyou-message').show();
           }
-              $('.helpful li i').removeClass('star').addClass('star-empty');
+          else {
+            $('.helpful .feedback-form').show();
+            $('.helpful .thankyou-message').hide();
+          }
+          $('.helpful li i').removeClass('star').addClass('star-empty');
           $(this)
               .removeClass('star-empty').addClass('star')
               .prevAll().removeClass('star-empty').addClass('star');
@@ -312,19 +318,22 @@
           }
       });
 
-      //Submit comment
       $('.helpful input[type="submit"]').click(function(){
           var rating = $('.star').length;
           var comment = $('.helpful [name="feedback-textarea"]').val();
-          if(rating) {
-              postFeedback(ratingId, comment, window.location.href, rating);
+          if (rating) {
+              if (comment.length > 0) {
+                  postFeedback(ratingId, comment, window.location.href, rating);
+              }
+              else {
+                  $('.helpful .error').html('Please write a comment.').attr('style', 'color: #D1344E;');
+              }
           }
           else {
               $('.helpful .error').html('Please rate this topic.').attr('style', 'color: #D1344E;');
           }
       });
 
-      //Post feedback function
       function postFeedback(ratingId, comment, url, rating) {
           $.ajax({
               type: 'POST',
@@ -335,14 +344,11 @@
                   withCredentials: false
               },
               complete: function() {
-                  if(comment != 'star-only') {
-                      $('.helpful .error').html('Thank you for your feedback!').attr('style', 'color: #16BB64;');
-                      $('.helpful .thankyou-message').show();
+                  if (comment != 'star-only') {
                       $('.helpful input[type="submit"]').attr('disabled', 'disabled');
+                      $('.helpful .feedback-form').hide();
+                      $('.helpful .thankyou-message').show();
                   }
-                  //else {
-                  //    $('.helpful .error').html('Was this topic helpful?').attr('style', 'color: #58595a;');
-                  //}
               }
           });
       }
