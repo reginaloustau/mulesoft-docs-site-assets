@@ -118,7 +118,7 @@ function toggleSidebarNav(e) {
         articleCols = {},
         speed = 250;
     // NOTE keep toc from jumping while width of sidebar transitions
-    toc.css('left', toc.offset().left);
+    if (toc.length) toc.css('left', toc.offset().left);
     if (sidebarNavOpen) { // close
         articleCols = { from: 'col-md-7', to: 'col-md-10' }
         sidebarNavContent.css('width', sidebarNavContent[0].getBoundingClientRect().width);
@@ -134,7 +134,7 @@ function toggleSidebarNav(e) {
     var toContentWidth = articleContent[0].getBoundingClientRect().width;
     articleContent.css('width', fromContentWidth);
     sidebarNav.animate({ width: 'toggle', opacity: 'toggle' }, { duration: speed, queue: false, complete: function() {
-        toc.css('left', '');
+        if (toc.length) toc.css('left', '');
         sidebarNavContent.css('width', '');
         // FIXME think about whether we can skip this step in certain cases; perhaps first time only?
         if (!sidebarNavOpen) place_scroll_marker(sidebarNavContent.find('li.active'), 'active-marker');
