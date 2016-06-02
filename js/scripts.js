@@ -1,18 +1,18 @@
 var SCREEN_SMALL_MAX = 992;
+$.fn.reverse = Array.prototype.reverse;
 
-/* Initialization */
 $(function() {
     initSubHeader();
+    // QUESTION should initSidebarNav come before initSubHeader?
     initSidebarNav();
-    initScrollMenu();
+    initSidebarToc();
     fixEncoding();
     $('body').show();
 });
 
-$( window ).load(function() {
+$(window).load(function() {
     initFancyBox();
 });
-
 
 function initFancyBox () {
 
@@ -31,79 +31,44 @@ function initFancyBox () {
 }
 
 function initSubHeader() {
-    if (window.innerWidth < SCREEN_SMALL_MAX) toggleSidebarNav();
+    // QUESTION do we need to unbind click?
+    $('.tree-icon').click(toggleSidebarNav);
+    if (window.innerWidth <= SCREEN_SMALL_MAX) toggleSidebarNav();
 
-    //Fixed subheader
-    $(window).resize(function(){
-        $('.sub-header').css('width', $('.container').css('width'));
-        scrollbarAdjusting();
-        if (window.innerWidth < SCREEN_SMALL_MAX && !$('.tree-icon').hasClass('tree-closed')) {
-            toggleSidebarNav();
-        }
+    // affix subheader when page is scrolled
+    affixSubHeader();
+    $(window).scroll(affixSubHeader);
+
+    $(window).resize(function(e) {
+        var container = $('.container');
+        if (container.hasClass('sub-header-fixed')) $('.sub-header').css('width', container.css('width'));
+        if (window.innerWidth <= SCREEN_SMALL_MAX && !$('.tree-icon').hasClass('tree-closed')) toggleSidebarNav();
     });
 
-    $(window).scroll(function() {
-        var subheader = $('.sub-header'),
-            container = $('.container');
+    // remove Search input box placeholder on focus
+    $('.search-field').focus(function(){
+        $(this).data('placeholder', $(this).attr('placeholder'))
+        $(this).attr('placeholder', '');
+    });
+    $('.search-field').blur(function() {
+        $(this).attr('placeholder', $(this).data('placeholder'));
+    });
+}
 
-        if ($(this).scrollTop() >= $('.header').height()) {
-            subheader.css({
-                'position': 'fixed',
-                'z-index': '999',
-                'top': '0',
-                'width': container.css('width')
-            });
-            //container.css('margin-top', subheader.height());
+// QUESTION can we use the affix plugin here?
+function affixSubHeader() {
+    var container = $('.container'),
+        fixed = container.hasClass('sub-header-fixed');
+    // FIXME cache value of header height
+    if ($(window).scrollTop() >= $('.header').height()) {
+        if (!fixed) {
+            $('.sub-header').css('width', container.css('width'));
             container.addClass('sub-header-fixed');
         }
-        else {
-            subheader.css('position', 'static');
-            //container.css('margin-top', 0);
-            container.removeClass('sub-header-fixed');
-            $('.tree-icon').css('display', 'inline-block');
-        }
-    });
-
-    //Tree Toggle button
-    $('.tree-icon').unbind('click').click(toggleSidebarNav);
-
-    //Remove Search input box placeholder on focus
-    $('.search-field').focus(function(){
-        $(this).data('placeholder',$(this).attr('placeholder'))
-        $(this).attr('placeholder','');
-    });
-    $('.search-field').blur(function(){
-        $(this).attr('placeholder',$(this).data('placeholder'));
-    });
-}
-
-/*
-function scrollbarAdjusting(){
-    $('.scroll-menu').css('max-height',$(window).height() * .8 + 'px');
-    var y = $(this).scrollTop();
-
-
-    var collapse = y + $('.scroll-menu').height() > $('.footer').offset().top - 180;
-    if(!collapse){
-        $('.scroll-menu').css('top', y + 'px');
     }
-    else {
-        $('.scroll-menu').css('top', $('.footer').offset().top -  $('.scroll-menu').height() - 180 + 'px');
-    }
-}
-*/
-
-function scrollbarAdjusting(){
-    $('.scroll-menu').css('max-height',$(window).height() * .8 + 'px');
-    var y = $(this).scrollTop();
-    var collapse = y + $('.scroll-menu').height() > $('.footer').offset().top - 190;
-    if(collapse){
-        $('.scroll-menu').css('position','absolute');
-        $('.scroll-menu').css('top', $('.footer').offset().top -  $('.scroll-menu').height() - 190 + 'px');
-    }
-    else {
-        $('.scroll-menu').css('position','fixed');
-        $('.scroll-menu').css('top', '120px');
+    else if (fixed) {
+        $('.sub-header').css('width', '');
+        container.removeClass('sub-header-fixed');
     }
 }
 
@@ -114,17 +79,26 @@ function toggleSidebarNav(e) {
         sidebarNavOpen = sidebarNav.is(':visible'),
         sidebarNavContent = sidebarNav.find('nav');
         toc = $('.scroll-menu'),
+        tocParent = null,
         articleContent = $('.article-content'),
-        articleCols = {},
+        articleCols = sidebarNavOpen ? { from: 'col-md-7', to: 'col-md-10' } : { from: 'col-md-10', to: 'col-md-7' },
         speed = 250;
+    if (window.innerWidth <= SCREEN_SMALL_MAX) {
+        sidebarNav.toggle();
+        articleContent.removeClass(articleCols.from).addClass(articleCols.to);
+        if (!sidebarNavOpen) place_scroll_marker(sidebarNavContent.find('li.active'), 'active-marker');
+        return;
+    }
     // NOTE keep toc from jumping while width of sidebar transitions
-    if (toc.length) toc.css('left', toc.offset().left);
+    if (toc.length) {
+        var tocParentOffset = (tocParent = toc.parent()).offset();
+        tocParent.css({ position: 'absolute', top: tocParentOffset.top, left: tocParentOffset.left });
+        if (toc.hasClass('affix')) toc.css('left', toc.offset().left);
+    }
     if (sidebarNavOpen) { // close
-        articleCols = { from: 'col-md-7', to: 'col-md-10' }
         sidebarNavContent.css('width', sidebarNavContent[0].getBoundingClientRect().width);
     }
     else { // open
-        articleCols = { from: 'col-md-10', to: 'col-md-7' }
         sidebarNav.show();
         sidebarNavContent.css('width', sidebarNavContent[0].getBoundingClientRect().width);
         sidebarNav.hide();
@@ -133,74 +107,88 @@ function toggleSidebarNav(e) {
     articleContent.removeClass(articleCols.from).addClass(articleCols.to);
     var toContentWidth = articleContent[0].getBoundingClientRect().width;
     articleContent.css('width', fromContentWidth);
-    sidebarNav.animate({ width: 'toggle', opacity: 'toggle' }, { duration: speed, queue: false, complete: function() {
-        if (toc.length) toc.css('left', '');
-        sidebarNavContent.css('width', '');
-        // FIXME think about whether we can skip this step in certain cases; perhaps first time only?
-        if (!sidebarNavOpen) place_scroll_marker(sidebarNavContent.find('li.active'), 'active-marker');
-    }});
-    articleContent.animate({ width: toContentWidth }, { duration: speed, queue: false, complete: function() {
-        articleContent.css('width', '');
-    }});
+    sidebarNav.animate({ width: 'toggle', opacity: 'toggle' }, {
+        queue: "fx.sidebar",
+        duration: speed,
+        progress: function() {
+            // NOTE keep toc position synchronized throughout animation (used primarily when near bottom of page)
+            toc.trigger('scroll.bs.affix.data-api');
+        },
+        complete: function() {
+            sidebarNavContent.css('width', '');
+            if (toc.length) {
+                tocParent.css({ position: '', top: '', left: '' })
+                toc.css('left', '');
+            }
+            toc.trigger('scroll.bs.affix.data-api');
+            // FIXME think about whether we can skip this step in certain cases; perhaps first time only?
+            if (!sidebarNavOpen) place_scroll_marker(sidebarNavContent.find('li.active'), 'active-marker');
+        }
+    });
+    articleContent.animate({ width: toContentWidth }, {
+        queue: "fx.sidebar",
+        duration: speed,
+        complete: function() {
+            articleContent.css('width', '');
+            toc.trigger('scroll.bs.affix.data-api');
+        }
+    });
+    $([sidebarNav[0], articleContent[0]]).dequeue("fx.sidebar");
 }
 
-function initScrollMenu(){
+function initSidebarToc() {
+    var scrollMenu = $('.scroll-menu');
+    if (!scrollMenu.length) return;
 
-    scrollbarAdjusting();
-
-    //Scroll-menu active links
-    $(window).scroll(function () {
-
-        scrollbarAdjusting();
-        var y = $(this).scrollTop();
-
-        $('.scroll-menu-link').each(function (event) {
-            if (y < $($(this).attr('href')).offset().top) {
-                var prev = $(this).prev();
-                var activeElement =  prev.length == 0? $(this) : prev;
-                $('.scroll-menu-link').removeClass('active');
-                activeElement.addClass('active');
-                return false;
-            }
-        });
-
+    scrollMenu.css('max-height', window.innerHeight - scrollMenu.offset().top);
+    scrollMenu.affix({
+        offset: {
+            top: $('.header').height(),
+            //bottom: $('.footer').outerHeight(true) + parseFloat(scrollMenu.css('margin-top')) + parseFloat(scrollMenu.css('margin-bottom'))
+            bottom: $('.footer').outerHeight(true) + parseFloat(scrollMenu.css('margin-bottom'))
+        }
     });
 
-
-    //Scroll-menu smooth scroll
-    $('.scroll-menu a[href*=#]:not([href=#])').click(function (e) {
-        if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
-            var target = $(this.hash);
-            var nameVal = this.hash.slice(1);
-            target = target.length ? target : $('[name=' + nameVal + ']');
-
-            if (target.length) {
-                $('html,body').animate({
-                    scrollTop: (target.offset().top - 150)
-                }, 300);
-                history.pushState({}, null,'#' + nameVal);
-                return false;
+    $(window).scroll(function() {
+        var menuLinks = $('.scroll-menu .scroll-menu-link'),
+            scrollY = $(this).scrollTop(),
+            cushion = parseFloat($('.container').css('margin-top')) + 20,
+            matchFound = false;
+        menuLinks.removeClass('active');
+        menuLinks.reverse().each(function() {
+            if (scrollY >= $(this.hash).offset().top - cushion) {
+                $(this).addClass('active');
+                return !(matchFound = true);
             }
+        });
+        if (!matchFound && menuLinks.length) menuLinks.last().addClass('active');
+    });
+
+    scrollMenu.find('.scroll-menu-link').click(function(e) {
+        e.preventDefault();
+        var target = $(this.hash),
+            cushion = $('.sub-header').height();
+        if (target.length) {
+            $('html, body').animate({ scrollTop: target.offset().top - cushion }, 300);
+            history.pushState({}, '', this.hash);
         }
-
-
     });
 }
 
 /* Setting sidebar tree nav */
-function initSidebarNav(){
-
+function initSidebarNav() {
 
     //Collapse all lists
     $('.sidebar-nav nav li:has(ul)').addClass('parent_li');
     openExpandedSubtree();
 
-    if (window.innerWidth >= SCREEN_SMALL_MAX) {
+    if (window.innerWidth > SCREEN_SMALL_MAX) {
         // FIXME can we make it work without this setTimeout?
         setTimeout(function() { place_scroll_marker($('.sidebar-nav nav li.active'), 'active-marker'); }, 0);
     }
 
-    $('.sidebar-nav nav li.parent_li > i').on('click', function (e) {
+    $('.sidebar-nav nav li.parent_li > i').click(function(e) {
+        e.preventDefault();
         var parent = $(this).parent('li.parent_li'),
             children = parent.find('> ul');
 
@@ -209,7 +197,7 @@ function initSidebarNav(){
         // Show/hide a sublist
         if (children.is(':visible')) {
             children.slideUp('fast');
-            $(this).addClass('glyphicon-chevron-right').removeClass('glyphicon-chevron-down');
+            $(this).removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
 
             /* Remove active trail from the node to the childrens */
             parent.removeClass('expanded');
@@ -222,14 +210,13 @@ function initSidebarNav(){
 
         } else {
             children.slideDown('fast');
-            $(this).addClass('glyphicon-chevron-down').removeClass('glyphicon-chevron-right');
+            $(this).removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
             parent.addClass('expanded');
 
             if (children.find('.active').is(':visible')){
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 250);
             }
         }
-        e.stopPropagation();
     });
 
     $('.sidebar-nav nav li').hover(function() {
@@ -243,9 +230,9 @@ function initSidebarNav(){
 
     function openExpandedSubtree(){
         $('.sidebar-nav nav li.parent_li > ul').hide(0);
-        $('.sidebar-nav nav li.parent_li > i').addClass('glyphicon-chevron-right').removeClass('glyphicon-chevron-down');
+        $('.sidebar-nav nav li.parent_li > i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
         $('.sidebar-nav nav li.parent_li.expanded > ul').show(0);
-        $('.sidebar-nav nav li.parent_li.expanded > i').addClass('glyphicon-chevron-down').removeClass('glyphicon-chevron-right');
+        $('.sidebar-nav nav li.parent_li.expanded > i').removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
     }
 }
 

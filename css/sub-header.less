@@ -1,10 +1,12 @@
 @import "variables.less";
 
 .sub-header {
-    font-family: "OpenSans", Helvetica, Arial, sans-serif;
+  font-family: "OpenSans", Helvetica, Arial, sans-serif;
+  z-index: 999;
+  top: 0;
 
   .search-box {
-    height: 70px;
+    height: @mulesoft-toolbar-height;
     background: @mulesoft-light-blue;
     color: white;
     padding: 19px 0px 0px 20px;
@@ -61,7 +63,7 @@
 
   }
   .toolbar {
-    height: 70px;
+    height: @mulesoft-toolbar-height;
     background: white;
     border-bottom: 1px solid #DBDBDB;
     padding: 17px 20px 20px 20px;
@@ -311,7 +313,7 @@
     border-bottom: 1px solid #DBDBDB;
     text-align: right;
     padding: 16px 0px 0px 28px;
-    height: 70px;
+    height: @mulesoft-toolbar-height;
     display: block;
 
     label{
@@ -319,30 +321,33 @@
       color: @mulesoft-dark-grey;
       margin-right: 10px;
     }
-    select{
+    select {
       width: auto;
       appearance: none;
       -webkit-appearance: none;
       -moz-appearance: none;
       border: none;
       border-radius: 0;
-      padding: 7px 33px 7px 10px;
-      background: @mulesoft-light-grey url('../img/nav-expand.svg') 85% 52% no-repeat;
-      background-size: 20px;
-
+      padding: 7px 30px 7px 10px;
+      background: @mulesoft-light-grey url('../img/nav-expand.svg') 90% 55% no-repeat;
+      background-size: 18px;
       color: @mulesoft-dark-grey;
-      text-align: right;
-
-      &:focus{
+      text-align: left;
+      //option {
+      //  text-align: right; // only works in Firefox
+      //}
+      &:focus {
         outline: 0;
       }
     }
   }
-
 }
 
 .container.sub-header-fixed {
-  margin-top: 70px;
+  margin-top: @mulesoft-toolbar-height;
+  .sub-header {
+    position: fixed;
+  }
 }
 
 @media (max-width: 992px) {
@@ -413,16 +418,16 @@
       }
     }
 
-    .version-selector{
-      text-align: right;
-      padding-right: 10px;
-
-
-      select{
+    .version-selector {
+      //text-align: right;
+      //padding-right: 10px;
+      select {
         width: auto;
-        padding: 7px;
+        padding: 7px 20px 7px 7px;
+        background-size: 16px;
+        background-position: 95% 55%;
       }
-      &.hidecontent{
+      &.hidecontent {
         display: none;
       }
     }
