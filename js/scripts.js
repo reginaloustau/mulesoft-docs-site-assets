@@ -31,45 +31,37 @@ function initFancyBox () {
 }
 
 function initSubHeader() {
-    // QUESTION do we need to unbind click?
-    $('.tree-icon').click(toggleSidebarNav);
-    if (window.innerWidth <= SCREEN_SMALL_MAX) toggleSidebarNav();
-
-    // affix subheader when page is scrolled
-    affixSubHeader();
-    $(window).scroll(affixSubHeader);
-
-    $(window).resize(function(e) {
-        var container = $('.container');
-        if (container.hasClass('sub-header-fixed')) $('.sub-header').css('width', container.css('width'));
-        if (window.innerWidth <= SCREEN_SMALL_MAX && !$('.tree-icon').hasClass('tree-closed')) toggleSidebarNav();
-    });
-
-    // remove Search input box placeholder on focus
-    $('.search-field').focus(function(){
-        $(this).data('placeholder', $(this).attr('placeholder'))
-        $(this).attr('placeholder', '');
-    });
-    $('.search-field').blur(function() {
-        $(this).attr('placeholder', $(this).data('placeholder'));
-    });
-}
-
-// QUESTION can we use the affix plugin here?
-function affixSubHeader() {
     var container = $('.container'),
-        fixed = container.hasClass('sub-header-fixed');
-    // FIXME cache value of header height
-    if ($(window).scrollTop() >= $('.header').height()) {
-        if (!fixed) {
-            $('.sub-header').css('width', container.css('width'));
-            container.addClass('sub-header-fixed');
-        }
-    }
-    else if (fixed) {
-        $('.sub-header').css('width', '');
-        container.removeClass('sub-header-fixed');
-    }
+        subHeader = $('.sub-header'),
+        treeIcon = $('.tree-icon'),
+        searchField = $('.search-field'),
+        updateSubHeaderWidth = function() {
+            subHeader.css('width', container.css('width'));
+            if (!(window.innerWidth > SCREEN_SMALL_MAX || treeIcon.hasClass('tree-closed'))) toggleSidebarNav();
+        };
+
+    treeIcon.click(toggleSidebarNav);
+
+    updateSubHeaderWidth();
+    $(window).resize(updateSubHeaderWidth);
+
+    subHeader.affix({ offset: {
+        top: $('.header').height(),
+        bottom: $('.footer').outerHeight(true)
+    }});
+    container.toggleClass('affixed-sub-header', !subHeader.hasClass('affix-top'));
+    // NOTE capture transition between static and fixed positioning of sub-header
+    subHeader.on('affixed-top.bs.affix affixed.bs.affix', function(e) {
+        container.toggleClass('affixed-sub-header', e.type !== 'affixed-top');
+    });
+
+    searchField.data('placeholder', searchField.attr('placeholder'));
+    searchField.focus(function() {
+        searchField.attr('placeholder', '');
+    });
+    searchField.blur(function() {
+        searchField.attr('placeholder', searchField.data('placeholder'));
+    });
 }
 
 function toggleSidebarNav(e) {
@@ -108,7 +100,7 @@ function toggleSidebarNav(e) {
     var toContentWidth = articleContent[0].getBoundingClientRect().width;
     articleContent.css('width', fromContentWidth);
     sidebarNav.animate({ width: 'toggle', opacity: 'toggle' }, {
-        queue: "fx.sidebar",
+        queue: 'fx.sidebar',
         duration: speed,
         progress: function() {
             // NOTE keep toc position synchronized throughout animation (used primarily when near bottom of page)
@@ -126,33 +118,32 @@ function toggleSidebarNav(e) {
         }
     });
     articleContent.animate({ width: toContentWidth }, {
-        queue: "fx.sidebar",
+        queue: 'fx.sidebar',
         duration: speed,
         complete: function() {
             articleContent.css('width', '');
             toc.trigger('scroll.bs.affix.data-api');
         }
     });
-    $([sidebarNav[0], articleContent[0]]).dequeue("fx.sidebar");
+    $([sidebarNav[0], articleContent[0]]).dequeue('fx.sidebar');
 }
 
 function initSidebarToc() {
     var scrollMenu = $('.scroll-menu');
     if (!scrollMenu.length) return;
 
+    // FIXME update max-height on resize
     scrollMenu.css('max-height', window.innerHeight - scrollMenu.offset().top);
-    scrollMenu.affix({
-        offset: {
-            top: $('.header').height(),
-            //bottom: $('.footer').outerHeight(true) + parseFloat(scrollMenu.css('margin-top')) + parseFloat(scrollMenu.css('margin-bottom'))
-            bottom: $('.footer').outerHeight(true) + parseFloat(scrollMenu.css('margin-bottom'))
-        }
-    });
+    scrollMenu.affix({ offset: {
+        top: $('.header').height(),
+        bottom: $('.footer').outerHeight(true) + parseFloat(scrollMenu.css('margin-bottom'))
+    }});
 
     $(window).scroll(function() {
         var menuLinks = $('.scroll-menu .scroll-menu-link'),
             scrollY = $(this).scrollTop(),
-            cushion = parseFloat($('.container').css('margin-top')) + 20,
+            // QUESTION is there a more stable way to calculate cushion?
+            cushion = parseFloat($('.sub-header + .row').css('margin-top')) + 20,
             matchFound = false;
         menuLinks.removeClass('active');
         menuLinks.reverse().each(function() {
@@ -161,15 +152,16 @@ function initSidebarToc() {
                 return !(matchFound = true);
             }
         });
-        if (!matchFound && menuLinks.length) menuLinks.last().addClass('active');
+        // NOTE enable the following code to always highlight first element if no element is matched
+        //if (!matchFound && menuLinks.length) menuLinks.last().addClass('active');
     });
 
     scrollMenu.find('.scroll-menu-link').click(function(e) {
         e.preventDefault();
-        var target = $(this.hash),
-            cushion = $('.sub-header').height();
+        var target = $(this.hash);
         if (target.length) {
-            $('html, body').animate({ scrollTop: target.offset().top - cushion }, 300);
+            // NOTE we assume that any amount of scrolling pushes us to a fixed sub-header
+            $('html, body').animate({ scrollTop: target.offset().top - $('.sub-header').height() }, 300);
             history.pushState({}, '', this.hash);
         }
     });
@@ -237,7 +229,7 @@ function initSidebarNav() {
 }
 
 function place_scroll_marker(elem, markerClass) {
-    if (elem.length == 0) return;
+    if (!elem.length) return;
     var offsetTop = elem.offset().top,
         offsetLeft = $(".tree").left,
         height = 0,
