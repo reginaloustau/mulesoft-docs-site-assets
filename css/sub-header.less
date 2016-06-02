@@ -166,19 +166,19 @@
           padding-top: 69px;
         }
         i.star, i.star-empty {
-          background: url('../img/blue-star.svg') left center no-repeat;
+          background: left center no-repeat;
           width: 15px;
           height: 15px;
           display: inline-block;
           cursor: pointer;
         }
+        i.star, i.star-empty:hover {
+          background-image: url('../img/blue-star.svg');
+          opacity: 1;
+        }
         i.star-empty {
           background-image: url('../img/black-star.svg');
           opacity: 0.5;
-          &:hover {
-            background-image: url('../img/blue-star.svg');
-            opacity: 1;
-          }
         }
         li {
           margin-bottom: 0;
@@ -343,16 +343,14 @@
   }
 }
 
-.container.sub-header-fixed {
+// NOTE setting margin-top on .row is smoother than setting it on .container
+.affixed-sub-header .sub-header + .row {
   margin-top: @mulesoft-toolbar-height;
-  .sub-header {
-    position: fixed;
-  }
 }
 
 @media (max-width: 992px) {
-  .container.sub-header-fixed {
-    margin-top: 140px;
+  .affixed-sub-header .sub-header + .row {
+    margin-top: @mulesoft-toolbar-height * 2;
   }
 
   .sub-header {
