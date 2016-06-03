@@ -31,7 +31,9 @@ function initFancyBox () {
 }
 
 function initSubHeader() {
-    var container = $('.container'),
+    var header = $('.header'),
+        footer = $('.footer'),
+        container = $('.container'),
         subHeader = $('.sub-header'),
         treeIcon = $('.tree-icon'),
         searchField = $('.search-field'),
@@ -45,9 +47,10 @@ function initSubHeader() {
     updateSubHeaderWidth();
     $(window).resize(updateSubHeaderWidth);
 
+    // NOTE must use functions since header and footer height change on small screens
     subHeader.affix({ offset: {
-        top: $('.header').height(),
-        bottom: $('.footer').outerHeight(true)
+        top: function() { return header.height(); },
+        bottom: function() { return footer.outerHeight(); }
     }});
     container.toggleClass('affixed-sub-header', !subHeader.hasClass('affix-top'));
     // NOTE capture transition between static and fixed positioning of sub-header
@@ -129,39 +132,93 @@ function toggleSidebarNav(e) {
 }
 
 function initSidebarToc() {
-    var scrollMenu = $('.scroll-menu');
-    if (!scrollMenu.length) return;
+    var toc = $('.scroll-menu');
+    if (!toc.length) return;
 
-    // FIXME update max-height on resize
-    scrollMenu.css('max-height', window.innerHeight - scrollMenu.offset().top);
-    scrollMenu.affix({ offset: {
-        top: $('.header').height(),
-        bottom: $('.footer').outerHeight(true) + parseFloat(scrollMenu.css('margin-bottom'))
+    var header = $('.header'),
+        footer = $('.footer'),
+        tocMarginT = parseFloat(toc.css('margin-top')),
+        tocMarginB = parseFloat(toc.css('margin-bottom')),
+        stretchTocHeight = function(force) {
+            if (!force && !toc.hasClass('affix-top')) return; // guards against race condition w/ scroll event
+            toc.css('max-height', window.innerHeight - (toc.offset().top - $(window).scrollTop()) - tocMarginB);
+        },
+        fixTocHeight = function() {
+           toc.css('max-height', window.innerHeight - $('.sub-header').height() - tocMarginT - tocMarginB);
+        },
+        updateTocHeight = function(e) {
+            if (!toc.is(':visible')) return;
+            var type = e ? e.type : 'resize';
+            if (type === 'affixed-top' || (type === 'resize' && toc.hasClass('affix-top'))) {
+                $(window).off('scroll', stretchTocHeight).scroll(stretchTocHeight);
+                stretchTocHeight(true);
+            }
+            else {
+                $(window).off('scroll', stretchTocHeight);
+                fixTocHeight();
+            } 
+        }
+        // TODO might be nicer to scroll only when necessary to bring element into view
+        scrollToActiveLink = function(scrollTo) {
+            if (toc.data('scrolling-to') === scrollTo) return;
+            toc.stop('fx.toc.scroll', true).data('scrolling-to', scrollTo).animate({ scrollTop: scrollTo }, {
+                queue: 'fx.toc.scroll',
+                duration: 250,
+                complete: function() { $(this).removeData('scrolling-to'); }
+            }).dequeue('fx.toc.scroll');
+        };
+
+    // NOTE must use functions since header and footer height change on small screens
+    toc.affix({ offset: {
+        top: function() { return header.height(); },
+        bottom: function() { return footer.outerHeight() + tocMarginB; }
     }});
+    updateTocHeight();
+    toc.on('affixed-top.bs.affix affixed.bs.affix', updateTocHeight);
+    $(window).resize(function(e) {
+        updateTocHeight(e);
+        // NOTE call deferred handler multiple times to fix sync when scrolled to bottom of page
+        for (var i = 0; i < 2; i++) toc.trigger('click.bs.affix.data-api');
+    });
 
+    // TODO update active link on resize as well
+    // TODO disable while page is being scrolled to target of clicked item
     $(window).scroll(function() {
-        var menuLinks = $('.scroll-menu .scroll-menu-link'),
-            scrollY = $(this).scrollTop(),
+        if (!toc.is(':visible')) return;
+        var links = toc.find('.scroll-menu-link'),
+            windowScrollY = $(this).scrollTop(),
             // QUESTION is there a more stable way to calculate cushion?
             cushion = parseFloat($('.sub-header + .row').css('margin-top')) + 20,
-            matchFound = false;
-        menuLinks.removeClass('active');
-        menuLinks.reverse().each(function() {
-            if (scrollY >= $(this.hash).offset().top - cushion) {
+            scrollMax = toc[0].scrollHeight - toc.height(),
+            scrollable = scrollMax > 0,
+            matchFound, linkTop;
+        links.removeClass('active').reverse().each(function() {
+            var target = $(this.hash);
+            if (target.length && windowScrollY >= target.offset().top - cushion) {
                 $(this).addClass('active');
+                if (scrollable && (linkTop = $(this).position().top)) {
+                    var scrollFrom = toc.scrollTop(),
+                        scrollTo = scrollFrom + linkTop;
+                    if (scrollTo < scrollMax || (scrollTo >= scrollMax && scrollFrom < scrollMax)) {
+                        scrollToActiveLink(scrollTo);
+                    }
+                }
                 return !(matchFound = true);
             }
         });
-        // NOTE enable the following code to always highlight first element if no element is matched
-        //if (!matchFound && menuLinks.length) menuLinks.last().addClass('active');
+        if (!matchFound && links.length) {
+            if (scrollable && toc.scrollTop()) scrollToActiveLink(0);
+            // NOTE enable the following line to highlight first element if no element is matched
+            //links.last().addClass('active');
+        }
     });
 
-    scrollMenu.find('.scroll-menu-link').click(function(e) {
+    toc.find('.scroll-menu-link').click(function(e) {
         e.preventDefault();
         var target = $(this.hash);
         if (target.length) {
             // NOTE we assume that any amount of scrolling pushes us to a fixed sub-header
-            $('html, body').animate({ scrollTop: target.offset().top - $('.sub-header').height() }, 300);
+            $('html, body').animate({ scrollTop: target.offset().top - $('.sub-header').height() }, 250);
             history.pushState({}, '', this.hash);
         }
     });
