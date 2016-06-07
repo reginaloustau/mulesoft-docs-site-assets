@@ -3,9 +3,9 @@ $.fn.reverse = Array.prototype.reverse;
 
 $(function() {
     initSubHeader();
-    // QUESTION should initSidebarNav come before initSubHeader?
-    initSidebarNav();
-    initSidebarToc();
+    // QUESTION should initSiteNav come before initSubHeader? Keep in mind, initSubHeader collapses nav
+    initSiteNav();
+    initContentToc();
     fixEncoding();
     $('body').show();
 });
@@ -32,22 +32,22 @@ function initFancyBox () {
 
 function initSubHeader() {
     var header = $('.header'),
-        footer = $('.footer'),
-        container = $('.container'),
         subHeader = $('.sub-header'),
+        container = $('.container'),
+        footer = $('.footer'),
         treeIcon = $('.tree-icon'),
         searchField = $('.search-field'),
         updateSubHeaderWidth = function() {
             subHeader.css('width', container.css('width'));
-            if (!(window.innerWidth > SCREEN_SMALL_MAX || treeIcon.hasClass('tree-closed'))) toggleSidebarNav();
+            if (isSmallScreen() && !treeIcon.hasClass('tree-closed')) toggleSiteNav();
         };
 
-    treeIcon.click(toggleSidebarNav);
+    treeIcon.click(toggleSiteNav);
 
     updateSubHeaderWidth();
     $(window).resize(updateSubHeaderWidth);
 
-    // NOTE must use functions since header and footer height change on small screens
+    // NOTE we must use functions since header and footer height change on small screens
     subHeader.affix({ offset: {
         top: function() { return header.height(); },
         bottom: function() { return footer.outerHeight(); }
@@ -67,71 +67,7 @@ function initSubHeader() {
     });
 }
 
-function toggleSidebarNav(e) {
-    if (e) e.preventDefault();
-    (e ? $(this) : $('.tree-icon')).toggleClass('tree-closed');
-    var sidebarNav = $('.sidebar-nav'),
-        sidebarNavOpen = sidebarNav.is(':visible'),
-        sidebarNavContent = sidebarNav.find('nav');
-        toc = $('.scroll-menu'),
-        tocParent = null,
-        articleContent = $('.article-content'),
-        articleCols = sidebarNavOpen ? { from: 'col-md-7', to: 'col-md-10' } : { from: 'col-md-10', to: 'col-md-7' },
-        speed = 250;
-    if (window.innerWidth <= SCREEN_SMALL_MAX) {
-        sidebarNav.toggle();
-        articleContent.removeClass(articleCols.from).addClass(articleCols.to);
-        if (!sidebarNavOpen) place_scroll_marker(sidebarNavContent.find('li.active'), 'active-marker');
-        return;
-    }
-    // NOTE keep toc from jumping while width of sidebar transitions
-    if (toc.length) {
-        var tocParentOffset = (tocParent = toc.parent()).offset();
-        tocParent.css({ position: 'absolute', top: tocParentOffset.top, left: tocParentOffset.left });
-        if (toc.hasClass('affix')) toc.css('left', toc.offset().left);
-    }
-    if (sidebarNavOpen) { // close
-        sidebarNavContent.css('width', sidebarNavContent[0].getBoundingClientRect().width);
-    }
-    else { // open
-        sidebarNav.show();
-        sidebarNavContent.css('width', sidebarNavContent[0].getBoundingClientRect().width);
-        sidebarNav.hide();
-    }
-    var fromContentWidth = articleContent[0].getBoundingClientRect().width;
-    articleContent.removeClass(articleCols.from).addClass(articleCols.to);
-    var toContentWidth = articleContent[0].getBoundingClientRect().width;
-    articleContent.css('width', fromContentWidth);
-    sidebarNav.animate({ width: 'toggle', opacity: 'toggle' }, {
-        queue: 'fx.sidebar',
-        duration: speed,
-        progress: function() {
-            // NOTE keep toc position synchronized throughout animation (used primarily when near bottom of page)
-            toc.trigger('scroll.bs.affix.data-api');
-        },
-        complete: function() {
-            sidebarNavContent.css('width', '');
-            if (toc.length) {
-                tocParent.css({ position: '', top: '', left: '' })
-                toc.css('left', '');
-            }
-            toc.trigger('scroll.bs.affix.data-api');
-            // FIXME think about whether we can skip this step in certain cases; perhaps first time only?
-            if (!sidebarNavOpen) place_scroll_marker(sidebarNavContent.find('li.active'), 'active-marker');
-        }
-    });
-    articleContent.animate({ width: toContentWidth }, {
-        queue: 'fx.sidebar',
-        duration: speed,
-        complete: function() {
-            articleContent.css('width', '');
-            toc.trigger('scroll.bs.affix.data-api');
-        }
-    });
-    $([sidebarNav[0], articleContent[0]]).dequeue('fx.sidebar');
-}
-
-function initSidebarToc() {
+function initContentToc() {
     var toc = $('.scroll-menu');
     if (!toc.length) return;
 
@@ -139,8 +75,8 @@ function initSidebarToc() {
         footer = $('.footer'),
         tocMarginT = parseFloat(toc.css('margin-top')),
         tocMarginB = parseFloat(toc.css('margin-bottom')),
-        stretchTocHeight = function(force) {
-            if (!force && !toc.hasClass('affix-top')) return; // guards against race condition w/ scroll event
+        flowTocHeight = function(force) {
+            if (!(force || toc.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
             toc.css('max-height', window.innerHeight - (toc.offset().top - $(window).scrollTop()) - tocMarginB);
         },
         fixTocHeight = function() {
@@ -150,11 +86,11 @@ function initSidebarToc() {
             if (!toc.is(':visible')) return;
             var type = e ? e.type : 'resize';
             if (type === 'affixed-top' || (type === 'resize' && toc.hasClass('affix-top'))) {
-                $(window).off('scroll', stretchTocHeight).scroll(stretchTocHeight);
-                stretchTocHeight(true);
+                $(window).off('scroll', flowTocHeight).scroll(flowTocHeight);
+                flowTocHeight(true);
             }
             else {
-                $(window).off('scroll', stretchTocHeight);
+                $(window).off('scroll', flowTocHeight);
                 fixTocHeight();
             } 
         }
@@ -168,7 +104,7 @@ function initSidebarToc() {
             }).dequeue('fx.toc.scroll');
         };
 
-    // NOTE must use functions since header and footer height change on small screens
+    // NOTE we must use functions since header and footer height change on small screens
     toc.affix({ offset: {
         top: function() { return header.height(); },
         bottom: function() { return footer.outerHeight() + tocMarginB; }
@@ -177,7 +113,7 @@ function initSidebarToc() {
     toc.on('affixed-top.bs.affix affixed.bs.affix', updateTocHeight);
     $(window).resize(function(e) {
         updateTocHeight(e);
-        // NOTE call deferred handler multiple times to fix sync when scrolled to bottom of page
+        // NOTE call deferred handler 2 times to correct affix-bottom positioning when toggling between small & large screen
         for (var i = 0; i < 2; i++) toc.trigger('click.bs.affix.data-api');
     });
 
@@ -224,21 +160,121 @@ function initSidebarToc() {
     });
 }
 
-/* Setting sidebar tree nav */
-function initSidebarNav() {
+function toggleSiteNav(e) {
+    if (e) e.preventDefault();
+    (e ? $(this) : $('.tree-icon')).toggleClass('tree-closed');
+    var navColumn = $('.sidebar-nav'),
+        nav = navColumn.find('nav');
+        action = navColumn.is(':visible') ? 'close' : 'open',
+        toc = $('.scroll-menu'),
+        tocContainer = null,
+        articleContentColumn = $('.article-content'),
+        articleCols = action === 'open' ? { from: 'col-md-10', to: 'col-md-7' } : { from: 'col-md-7', to: 'col-md-10' },
+        speed = 250;
+    if (isSmallScreen()) {
+        navColumn.toggle();
+        articleContentColumn.removeClass(articleCols.from).addClass(articleCols.to);
+        // TODO can we skip placing scroll marker if it's already placed?
+        if (action === 'open') place_scroll_marker(nav.find('li.active'), 'active-marker');
+        return;
+    }
+    // NOTE keep toc from jumping while width of sidebar transitions
+    if (toc.length) {
+        var tocContainerOffset = (tocContainer = toc.parent()).offset();
+        tocContainer.css({ position: 'absolute', top: tocContainerOffset.top, left: tocContainerOffset.left });
+        if (toc.hasClass('affix')) toc.css('left', toc.offset().left);
+    }
+    if (action === 'open') {
+        navColumn.show();
+        nav.trigger('resize');
+        // TODO can we skip placing scroll marker if it's already placed?
+        place_scroll_marker(nav.find('li.active'), 'active-marker');
+        navColumn.hide();
+    }
+    var fromContentWidth = articleContentColumn[0].getBoundingClientRect().width;
+    articleContentColumn.removeClass(articleCols.from).addClass(articleCols.to);
+    var toContentWidth = articleContentColumn[0].getBoundingClientRect().width;
+    articleContentColumn.css('width', fromContentWidth);
+    navColumn.animate({ width: 'toggle', opacity: 'toggle' }, {
+        queue: 'fx.sidebar',
+        duration: speed,
+        // NOTE set overflow to visible to prevent nav in fixed position from disappearing in WebKit
+        start: function() { navColumn.css('overflow', 'visible'); },
+        // NOTE keep toc position synchronized throughout animation (used primarily when near bottom of page)
+        progress: function() { toc.trigger('scroll.bs.affix.data-api'); },
+        complete: function() {
+            if (toc.length) {
+                tocContainer.css({ position: '', top: '', left: '' })
+                toc.css('left', '');
+            }
+            toc.trigger('scroll.bs.affix.data-api');
+        }
+    });
+    articleContentColumn.animate({ width: toContentWidth }, {
+        queue: 'fx.sidebar',
+        duration: speed,
+        complete: function() {
+            articleContentColumn.css('width', '');
+            toc.trigger('scroll.bs.affix.data-api');
+        }
+    });
+    $([navColumn[0], articleContentColumn[0]]).dequeue('fx.sidebar');
+}
+
+function initSiteNav() {
+    var nav = $('.sidebar-nav nav'),
+        header = $('.header'),
+        subHeader = $('.sub-header'),
+        footer = $('.footer'),
+        flowNavHeight = function(force) {
+            if (!(force || nav.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
+            nav.css('max-height', window.innerHeight - (nav.offset().top - $(window).scrollTop()));
+        },
+        fixNavHeight = function() {
+            nav.css('max-height', window.innerHeight - subHeader.height());
+        },
+        updateNavWidth = function() {
+            nav.css('width', Math.floor(nav.parent()[0].getBoundingClientRect().width));
+        },
+        updateNavDimensions = function(e) {
+            var type = e ? e.type : 'resize';
+            if (isSmallScreen() || !nav.is(':visible')) {
+                if (type === 'resize') {
+                    $(window).off('scroll', flowNavHeight);
+                    nav.css({ 'width': '', 'max-height': '' });
+                }
+                return;
+            }
+            if (type === 'affixed-top' || (type === 'resize' && nav.hasClass('affix-top'))) {
+                $(window).off('scroll', flowNavHeight).scroll(flowNavHeight);
+                flowNavHeight(true);
+            }
+            else {
+                $(window).off('scroll', flowNavHeight);
+                fixNavHeight();
+            }
+            // NOTE set width even when affix-top as it corrects bleed in WebKit caused by scrollbar
+            if (type === 'resize') updateNavWidth();
+        };
+
+    // NOTE we must use functions since header and footer height change on small screens
+    nav.affix({ offset: {
+        top: function() { return header.height(); },
+        bottom: function() { return footer.outerHeight(); }
+    }});
+    nav.on('affixed-top.bs.affix affixed.bs.affix resize', updateNavDimensions).trigger('resize');
+    $(window).resize(updateNavDimensions);
 
     //Collapse all lists
-    $('.sidebar-nav nav li:has(ul)').addClass('parent_li');
+    nav.find('li:has(ul)').addClass('parent_li');
     openExpandedSubtree();
 
-    if (window.innerWidth > SCREEN_SMALL_MAX) {
-        // FIXME can we make it work without this setTimeout?
-        setTimeout(function() { place_scroll_marker($('.sidebar-nav nav li.active'), 'active-marker'); }, 0);
-    }
+    // FIXME can we make it work without this setTimeout?
+    if (isNotSmallScreen()) setTimeout(function() { place_scroll_marker(nav.find('li.active'), 'active-marker'); }, 0);
 
-    $('.sidebar-nav nav li.parent_li > i').click(function(e) {
+    nav.find('li.parent_li > i').click(function(e) {
         e.preventDefault();
-        var parent = $(this).parent('li.parent_li'),
+        var parent = $(this).parent(),
             children = parent.find('> ul');
 
         place_scroll_marker(parent, 'marker');
@@ -249,52 +285,56 @@ function initSidebarNav() {
             $(this).removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
 
             /* Remove active trail from the node to the childrens */
-            parent.removeClass('expanded');
-            parent.find('li.expanded').removeClass('expanded');
+            parent.removeClass('expanded').find('li.expanded').removeClass('expanded');
 
             // Hide active-marker
-            if (children.find('.active').length) {
+            if (children.find('li.active').length) {
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 100);
             }
-
-        } else {
+        }
+        else {
             children.slideDown('fast');
             $(this).removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
             parent.addClass('expanded');
 
-            if (children.find('.active').is(':visible')){
+            if (children.find('li.active').is(':visible')){
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 250);
             }
         }
     });
 
-    $('.sidebar-nav nav li').hover(function() {
+    nav.find('li').hover(function() {
         $('.marker').show();
         place_scroll_marker($(this), 'marker');
-    },function() {
-        if (!$('.tree').is(':hover')) {
-            $('.marker').hide();
-        }
+    }, function() {
+        if (!$('.tree').is(':hover')) $('.marker').hide();
     });
 
-    function openExpandedSubtree(){
-        $('.sidebar-nav nav li.parent_li > ul').hide(0);
-        $('.sidebar-nav nav li.parent_li > i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
-        $('.sidebar-nav nav li.parent_li.expanded > ul').show(0);
-        $('.sidebar-nav nav li.parent_li.expanded > i').removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
+    function openExpandedSubtree() {
+        nav.find('li.parent_li > ul').hide(0);
+        nav.find('li.parent_li > i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
+        nav.find('li.parent_li.expanded > ul').show(0);
+        nav.find('li.parent_li.expanded > i').removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
     }
 }
 
-function place_scroll_marker(elem, markerClass) {
-    if (!elem.length) return;
-    var offsetTop = elem.offset().top,
-        offsetLeft = $(".tree").left,
-        height = 0,
-        link = elem.find("> a"),
-        height = link.innerHeight() + parseInt(elem.css('padding-top'), 10) + parseInt(elem.css('padding-bottom'), 10);
-    $(".sidebar-nav ." + markerClass).show();
-    $(".sidebar-nav ." + markerClass).offset({top: offsetTop, left: offsetLeft});
-    $(".sidebar-nav ." + markerClass).height(height);
+function place_scroll_marker(el, markerClass) {
+    if (!el.length) return;
+    var nav = $('.sidebar-nav nav'),
+        link = el.find('> a'),
+        height = link.innerHeight() + parseInt(el.css('padding-top'), 10) + parseInt(el.css('padding-bottom'), 10);
+    nav.find('.' + markerClass)
+        .show()
+        .offset({ top: el.offset().top + nav.scrollTop() })
+        .height(height);
+}
+
+function isSmallScreen() {
+    return window.innerWidth <= SCREEN_SMALL_MAX;
+}
+
+function isNotSmallScreen() {
+    return window.innerWidth > SCREEN_SMALL_MAX;
 }
 
 function fixEncoding(){
