@@ -165,16 +165,17 @@ function toggleSiteNav(e) {
     (e ? $(this) : $('.tree-icon')).toggleClass('tree-closed');
     var navColumn = $('.sidebar-nav'),
         nav = navColumn.find('nav');
-        isNavOpen = navColumn.is(':visible'),
+        action = navColumn.is(':visible') ? 'close' : 'open',
         toc = $('.scroll-menu'),
         tocContainer = null,
         articleContentColumn = $('.article-content'),
-        articleCols = isNavOpen ? { from: 'col-md-7', to: 'col-md-10' } : { from: 'col-md-10', to: 'col-md-7' },
+        articleCols = action === 'open' ? { from: 'col-md-10', to: 'col-md-7' } : { from: 'col-md-7', to: 'col-md-10' },
         speed = 250;
     if (isSmallScreen()) {
         navColumn.toggle();
         articleContentColumn.removeClass(articleCols.from).addClass(articleCols.to);
-        if (!isNavOpen) place_scroll_marker(nav.find('li.active'), 'active-marker');
+        // TODO can we skip placing scroll marker if it's already placed?
+        if (action === 'open') place_scroll_marker(nav.find('li.active'), 'active-marker');
         return;
     }
     // NOTE keep toc from jumping while width of sidebar transitions
@@ -183,9 +184,11 @@ function toggleSiteNav(e) {
         tocContainer.css({ position: 'absolute', top: tocContainerOffset.top, left: tocContainerOffset.left });
         if (toc.hasClass('affix')) toc.css('left', toc.offset().left);
     }
-    if (!isNavOpen) { // opening
+    if (action === 'open') {
         navColumn.show();
         nav.trigger('resize');
+        // TODO can we skip placing scroll marker if it's already placed?
+        place_scroll_marker(nav.find('li.active'), 'active-marker');
         navColumn.hide();
     }
     var fromContentWidth = articleContentColumn[0].getBoundingClientRect().width;
@@ -205,8 +208,6 @@ function toggleSiteNav(e) {
                 toc.css('left', '');
             }
             toc.trigger('scroll.bs.affix.data-api');
-            // FIXME think about whether we can skip this step in certain cases; perhaps first time only?
-            if (!isNavOpen) place_scroll_marker(nav.find('li.active'), 'active-marker');
         }
     });
     articleContentColumn.animate({ width: toContentWidth }, {
@@ -287,7 +288,7 @@ function initSiteNav() {
             parent.removeClass('expanded').find('li.expanded').removeClass('expanded');
 
             // Hide active-marker
-            if (children.find('.active').length) {
+            if (children.find('li.active').length) {
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 100);
             }
         }
@@ -296,7 +297,7 @@ function initSiteNav() {
             $(this).removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
             parent.addClass('expanded');
 
-            if (children.find('.active').is(':visible')){
+            if (children.find('li.active').is(':visible')){
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 250);
             }
         }
@@ -317,16 +318,15 @@ function initSiteNav() {
     }
 }
 
-function place_scroll_marker(elem, markerClass) {
-    if (!elem.length) return;
-    var offsetTop = elem.offset().top,
-        offsetLeft = $('.tree').left,
-        height = 0,
-        link = elem.find('> a'),
-        height = link.innerHeight() + parseInt(elem.css('padding-top'), 10) + parseInt(elem.css('padding-bottom'), 10);
-    $('.sidebar-nav .' + markerClass).show();
-    $('.sidebar-nav .' + markerClass).offset({top: offsetTop, left: offsetLeft});
-    $('.sidebar-nav .' + markerClass).height(height);
+function place_scroll_marker(el, markerClass) {
+    if (!el.length) return;
+    var nav = $('.sidebar-nav nav'),
+        link = el.find('> a'),
+        height = link.innerHeight() + parseInt(el.css('padding-top'), 10) + parseInt(el.css('padding-bottom'), 10);
+    nav.find('.' + markerClass)
+        .show()
+        .offset({ top: el.offset().top + nav.scrollTop() })
+        .height(height);
 }
 
 function isSmallScreen() {

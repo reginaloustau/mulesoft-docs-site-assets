@@ -162,9 +162,9 @@
     </div>
     <div class="row">
         <div class="sidebar-nav col-md-3" data-swiftype-index='false'>
-            <div class="marker"></div>
-            <div class="active-marker"></div>
             <nav>
+                <div class="marker"></div>
+                <div class="active-marker"></div>
                 <ul class="tree">
                   {{ page.toc }}
                 </ul>
