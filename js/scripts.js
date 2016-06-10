@@ -54,7 +54,7 @@ function initSubHeader() {
     }});
     container.toggleClass('affixed-sub-header', !subHeader.hasClass('affix-top'));
     // NOTE capture transition between static and fixed positioning of sub-header
-    subHeader.on('affixed-top.bs.affix affixed.bs.affix', function(e) {
+    subHeader.on('affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', function(e) {
         container.toggleClass('affixed-sub-header', e.type !== 'affixed-top');
     });
 
@@ -71,16 +71,16 @@ function initContentToc() {
     var toc = $('.scroll-menu');
     if (!toc.length) return;
 
+    // NOTE we can't cache toc margins because, due to less.js, they may not be set when this function is called
     var header = $('.header'),
+        subHeader = $('.sub-header'),
         footer = $('.footer'),
-        tocMarginT = parseFloat(toc.css('margin-top')),
-        tocMarginB = parseFloat(toc.css('margin-bottom')),
         flowTocHeight = function(force) {
             if (!(force || toc.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
-            toc.css('max-height', window.innerHeight - (toc.offset().top - $(window).scrollTop()) - tocMarginB);
+            toc.css('max-height', window.innerHeight - (toc.offset().top - $(window).scrollTop()) - parseFloat(toc.css('margin-bottom')));
         },
-        fixTocHeight = function() {
-           toc.css('max-height', window.innerHeight - $('.sub-header').height() - tocMarginT - tocMarginB);
+        lockTocHeight = function() {
+           toc.css('max-height', window.innerHeight - subHeader.height() - parseFloat(toc.css('margin-top')) - parseFloat(toc.css('margin-bottom')));
         },
         updateTocHeight = function(e) {
             if (!toc.is(':visible')) return;
@@ -91,8 +91,12 @@ function initContentToc() {
             }
             else {
                 $(window).off('scroll', flowTocHeight);
-                fixTocHeight();
+                lockTocHeight();
             } 
+            // NOTE for drastic movements, the positioning logic sometimes needs a little nudge.
+            // Specifically, trigger deferred handler one extra time to correct affix-bottom
+            // positioning when toggling window between small & large screen size.
+            if (e && e.type == 'resize') toc.trigger('click.bs.affix.data-api');
         }
         // TODO might be nicer to scroll only when necessary to bring element into view
         scrollToActiveLink = function(scrollTo) {
@@ -107,15 +111,10 @@ function initContentToc() {
     // NOTE we must use functions since header and footer height change on small screens
     toc.affix({ offset: {
         top: function() { return header.height(); },
-        bottom: function() { return footer.outerHeight() + tocMarginB; }
+        bottom: function() { return footer.outerHeight() + parseFloat(toc.css('margin-bottom')); }
     }});
-    updateTocHeight();
-    toc.on('affixed-top.bs.affix affixed.bs.affix', updateTocHeight);
-    $(window).resize(function(e) {
-        updateTocHeight(e);
-        // NOTE call deferred handler 2 times to correct affix-bottom positioning when toggling between small & large screen
-        for (var i = 0; i < 2; i++) toc.trigger('click.bs.affix.data-api');
-    });
+    toc.on('resize affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateTocHeight).trigger('resize');
+    $(window).resize(updateTocHeight);
 
     // TODO update active link on resize as well
     // TODO disable while page is being scrolled to target of clicked item
@@ -154,7 +153,7 @@ function initContentToc() {
         var target = $(this.hash);
         if (target.length) {
             // NOTE we assume that any amount of scrolling pushes us to a fixed sub-header
-            $('html, body').animate({ scrollTop: target.offset().top - $('.sub-header').height() }, 250);
+            $('html, body').animate({ scrollTop: target.offset().top - subHeader.height() }, 250);
             history.pushState({}, '', this.hash);
         }
     });
@@ -230,7 +229,7 @@ function initSiteNav() {
             if (!(force || nav.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
             nav.css('max-height', window.innerHeight - (nav.offset().top - $(window).scrollTop()));
         },
-        fixNavHeight = function() {
+        lockNavHeight = function() {
             nav.css('max-height', window.innerHeight - subHeader.height());
         },
         updateNavWidth = function() {
@@ -251,10 +250,12 @@ function initSiteNav() {
             }
             else {
                 $(window).off('scroll', flowNavHeight);
-                fixNavHeight();
+                lockNavHeight();
             }
             // NOTE set width even when affix-top as it corrects bleed in WebKit caused by scrollbar
             if (type === 'resize') updateNavWidth();
+            // NOTE for drastic movements, the positioning logic sometimes needs a little nudge
+            nav.trigger('click.bs.affix.data-api');
         };
 
     // NOTE we must use functions since header and footer height change on small screens
@@ -262,7 +263,7 @@ function initSiteNav() {
         top: function() { return header.height(); },
         bottom: function() { return footer.outerHeight(); }
     }});
-    nav.on('affixed-top.bs.affix affixed.bs.affix resize', updateNavDimensions).trigger('resize');
+    nav.on('resize affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateNavDimensions).trigger('resize');
     $(window).resize(updateNavDimensions);
 
     //Collapse all lists
