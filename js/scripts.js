@@ -37,26 +37,30 @@ function initSubHeader() {
         footer = $('.footer'),
         treeIcon = $('.tree-icon'),
         searchField = $('.search-field'),
-        updateSubHeaderWidth = function() {
+        updateSubHeaderStatus = function(e) {
+            container.toggleClass('affixed-sub-header', e.type !== 'affixed-top');
+        },
+        onResize = function() {
             subHeader.css('width', container.css('width'));
+            // NOTE header and footer height change based on screen size
+            updateAffixOffset();
             if (isSmallScreen() && !treeIcon.hasClass('tree-closed')) toggleSiteNav();
+        },
+        calcAffixOffset = function() {
+            return { top: header.height(), bottom: footer.outerHeight() };
+        },
+        updateAffixOffset = function() {
+            subHeader.data('bs.affix').options.offset = calcAffixOffset();
         };
 
     treeIcon.click(toggleSiteNav);
 
-    updateSubHeaderWidth();
-    $(window).resize(updateSubHeaderWidth);
-
-    // NOTE we must use functions since header and footer height change on small screens
-    subHeader.affix({ offset: {
-        top: function() { return header.height(); },
-        bottom: function() { return footer.outerHeight(); }
-    }});
-    container.toggleClass('affixed-sub-header', !subHeader.hasClass('affix-top'));
-    // NOTE capture transition between static and fixed positioning of sub-header
-    subHeader.on('affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', function(e) {
-        container.toggleClass('affixed-sub-header', e.type !== 'affixed-top');
-    });
+    subHeader.affix({ offset: calcAffixOffset() });
+    updateSubHeaderStatus({ type: subHeader.hasClass('affix-top') ? 'affixed-top' : 'affixed' });
+    // NOTE capture transition between static and fixed/absolute positioning of sub-header
+    subHeader.on('affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateSubHeaderStatus);
+    onResize();
+    $(window).resize(onResize);
 
     searchField.data('placeholder', searchField.attr('placeholder'));
     searchField.focus(function() {
@@ -71,19 +75,24 @@ function initContentToc() {
     var toc = $('.scroll-menu');
     if (!toc.length) return;
 
-    // NOTE we can't cache toc margins because, due to less.js, they may not be set when this function is called
     var header = $('.header'),
         subHeader = $('.sub-header'),
         footer = $('.footer'),
+        // NOTE due to less.js, margins may not be set when this function is called, so we use hardcoded values
+        //tocMargin = { top: parseFloat(toc.css('margin-top')), bottom: parseFloat(toc.css('margin-bottom')) },
+        tocMargin = { top: 53, bottom: 20 },
         flowTocHeight = function(force) {
             if (!(force || toc.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
-            toc.css('max-height', window.innerHeight - (toc.offset().top - $(window).scrollTop()) - parseFloat(toc.css('margin-bottom')));
+            toc.css('max-height', window.innerHeight - (toc.offset().top - $(window).scrollTop()) - tocMargin.bottom);
         },
         lockTocHeight = function() {
-           toc.css('max-height', window.innerHeight - subHeader.height() - parseFloat(toc.css('margin-top')) - parseFloat(toc.css('margin-bottom')));
+           toc.css('max-height', window.innerHeight - subHeader.height() - tocMargin.top - tocMargin.bottom);
         },
         updateTocHeight = function(e) {
-            if (!toc.is(':visible')) return;
+            if (isSmallScreen() || !toc.is(':visible')) {
+                if (e && e.type === 'resize') $(window).off('scroll', flowTocHeight);
+                return;
+            }
             var type = e ? e.type : 'resize';
             if (type === 'affixed-top' || (type === 'resize' && toc.hasClass('affix-top'))) {
                 $(window).off('scroll', flowTocHeight).scroll(flowTocHeight);
@@ -93,11 +102,21 @@ function initContentToc() {
                 $(window).off('scroll', flowTocHeight);
                 lockTocHeight();
             } 
-            // NOTE for drastic movements, the positioning logic sometimes needs a little nudge.
-            // Specifically, trigger deferred handler one extra time to correct affix-bottom
-            // positioning when toggling window between small & large screen size.
-            if (e && e.type == 'resize') toc.trigger('click.bs.affix.data-api');
-        }
+            if (e && type === 'resize') {
+                // NOTE header and footer height change based on screen size
+                updateAffixOffset();
+                // NOTE for drastic movements, the positioning logic sometimes needs a little nudge.
+                // Specifically, trigger deferred handler one extra time to correct affix-bottom
+                // positioning when toggling window between small & large screen size.
+                toc.trigger('click.bs.affix.data-api');
+            }
+        },
+        calcAffixOffset = function() {
+            return { top: header.height(), bottom: footer.outerHeight() + tocMargin.bottom };
+        },
+        updateAffixOffset = function() {
+            toc.data('bs.affix').options.offset = calcAffixOffset();
+        },
         // TODO might be nicer to scroll only when necessary to bring element into view
         scrollToActiveLink = function(scrollTo) {
             if (toc.data('scrolling-to') === scrollTo) return;
@@ -108,11 +127,7 @@ function initContentToc() {
             }).dequeue('fx.toc.scroll');
         };
 
-    // NOTE we must use functions since header and footer height change on small screens
-    toc.affix({ offset: {
-        top: function() { return header.height(); },
-        bottom: function() { return footer.outerHeight() + parseFloat(toc.css('margin-bottom')); }
-    }});
+    toc.affix({ offset: calcAffixOffset() });
     toc.on('resize affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateTocHeight).trigger('resize');
     $(window).resize(updateTocHeight);
 
@@ -236,14 +251,14 @@ function initSiteNav() {
             nav.css('width', Math.floor(nav.parent()[0].getBoundingClientRect().width));
         },
         updateNavDimensions = function(e) {
-            var type = e ? e.type : 'resize';
             if (isSmallScreen() || !nav.is(':visible')) {
-                if (type === 'resize') {
+                if (e && e.type === 'resize') {
                     $(window).off('scroll', flowNavHeight);
                     nav.css({ 'width': '', 'max-height': '' });
                 }
                 return;
             }
+            var type = e ? e.type : 'resize';
             if (type === 'affixed-top' || (type === 'resize' && nav.hasClass('affix-top'))) {
                 $(window).off('scroll', flowNavHeight).scroll(flowNavHeight);
                 flowNavHeight(true);
@@ -253,16 +268,22 @@ function initSiteNav() {
                 lockNavHeight();
             }
             // NOTE set width even when affix-top as it corrects bleed in WebKit caused by scrollbar
-            if (type === 'resize') updateNavWidth();
+            if (type === 'resize') {
+              // NOTE header and footer height change based on screen size
+              if (e) updateAffixOffset();
+              updateNavWidth();
+            }
             // NOTE for drastic movements, the positioning logic sometimes needs a little nudge
             nav.trigger('click.bs.affix.data-api');
+        },
+        calcAffixOffset = function() {
+            return { top: header.height(), bottom: footer.outerHeight() };
+        },
+        updateAffixOffset = function() {
+            nav.data('bs.affix').options.offset = calcAffixOffset();
         };
 
-    // NOTE we must use functions since header and footer height change on small screens
-    nav.affix({ offset: {
-        top: function() { return header.height(); },
-        bottom: function() { return footer.outerHeight(); }
-    }});
+    nav.affix({ offset: calcAffixOffset() });
     nav.on('resize affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateNavDimensions).trigger('resize');
     $(window).resize(updateNavDimensions);
 

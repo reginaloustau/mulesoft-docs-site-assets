@@ -95,9 +95,10 @@
     // NOTE override any width and max-height values set by JavaScript; technically not necessary
     width: auto !important;
     max-height: initial !important;
-    &.affix, &.affix-bottom {
+    &.affix-top, &.affix, &.affix-bottom {
+      //position: relative;
+      //top: 0px;
       position: static;
-      //top: 0;
     }
   }
 }
