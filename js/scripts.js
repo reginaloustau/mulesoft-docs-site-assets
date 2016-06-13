@@ -42,8 +42,7 @@ function initSubHeader() {
         },
         onResize = function() {
             subHeader.css('width', container.css('width'));
-            // NOTE header and footer height change based on screen size
-            updateAffixOffset();
+            updateAffixOffset(); // NOTE header and footer height change based on screen size
             if (isSmallScreen() && !treeIcon.hasClass('tree-closed')) toggleSiteNav();
         },
         calcAffixOffset = function() {
@@ -78,7 +77,7 @@ function initContentToc() {
     var header = $('.header'),
         subHeader = $('.sub-header'),
         footer = $('.footer'),
-        // NOTE due to less.js, margins may not be set when this function is called, so we use hardcoded values
+        // NOTE due to less.js, margins may not be set when this function is called, so hardcode values for now
         //tocMargin = { top: parseFloat(toc.css('margin-top')), bottom: parseFloat(toc.css('margin-bottom')) },
         tocMargin = { top: 53, bottom: 20 },
         flowTocHeight = function(force) {
@@ -89,11 +88,22 @@ function initContentToc() {
            toc.css('max-height', window.innerHeight - subHeader.height() - tocMargin.top - tocMargin.bottom);
         },
         updateTocHeight = function(e) {
-            if (isSmallScreen() || !toc.is(':visible')) {
-                if (e && e.type === 'resize') $(window).off('scroll', flowTocHeight);
+            if (isSmallScreen()) { // !toc.is(':visible') is implied
+                if (e.type === 'resize') {
+                    updateAffixOffset(); // NOTE header and footer height change based on screen size
+                    $(window).off('scroll', flowTocHeight);
+                    toc.css('max-height', '');
+                }
                 return;
             }
-            var type = e ? e.type : 'resize';
+            var type = e.type;
+            if (type === 'resize') {
+                updateAffixOffset(); // NOTE header and footer height change based on screen size
+                // NOTE for drastic movements, the positioning logic sometimes needs a little nudge.
+                // Specifically, trigger deferred handler one extra time to correct affix-bottom
+                // positioning when toggling window between small & large screen size.
+                toc.trigger('click.bs.affix.data-api');
+            }
             if (type === 'affixed-top' || (type === 'resize' && toc.hasClass('affix-top'))) {
                 $(window).off('scroll', flowTocHeight).scroll(flowTocHeight);
                 flowTocHeight(true);
@@ -101,14 +111,6 @@ function initContentToc() {
             else {
                 $(window).off('scroll', flowTocHeight);
                 lockTocHeight();
-            } 
-            if (e && type === 'resize') {
-                // NOTE header and footer height change based on screen size
-                updateAffixOffset();
-                // NOTE for drastic movements, the positioning logic sometimes needs a little nudge.
-                // Specifically, trigger deferred handler one extra time to correct affix-bottom
-                // positioning when toggling window between small & large screen size.
-                toc.trigger('click.bs.affix.data-api');
             }
         },
         calcAffixOffset = function() {
@@ -127,8 +129,9 @@ function initContentToc() {
             }).dequeue('fx.toc.scroll');
         };
 
+    // NOTE order of event registration is intentional; affixed events only triggered if subject is visible
+    toc.on('affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateTocHeight);
     toc.affix({ offset: calcAffixOffset() });
-    toc.on('resize affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateTocHeight).trigger('resize');
     $(window).resize(updateTocHeight);
 
     // TODO update active link on resize as well
@@ -198,15 +201,16 @@ function toggleSiteNav(e) {
         tocContainer.css({ position: 'absolute', top: tocContainerOffset.top, left: tocContainerOffset.left });
         if (toc.hasClass('affix')) toc.css('left', toc.offset().left);
     }
+    var fromContentWidth = articleContentColumn[0].getBoundingClientRect().width;
+    articleContentColumn.removeClass(articleCols.from).addClass(articleCols.to);
     if (action === 'open') {
+        // NOTE open menu temporarily to collect measurements
         navColumn.show();
-        nav.trigger('resize');
+        nav.trigger('init');
         // TODO can we skip placing scroll marker if it's already placed?
         place_scroll_marker(nav.find('li.active'), 'active-marker');
         navColumn.hide();
     }
-    var fromContentWidth = articleContentColumn[0].getBoundingClientRect().width;
-    articleContentColumn.removeClass(articleCols.from).addClass(articleCols.to);
     var toContentWidth = articleContentColumn[0].getBoundingClientRect().width;
     articleContentColumn.css('width', fromContentWidth);
     navColumn.animate({ width: 'toggle', opacity: 'toggle' }, {
@@ -240,26 +244,52 @@ function initSiteNav() {
         header = $('.header'),
         subHeader = $('.sub-header'),
         footer = $('.footer'),
+        article = $('.article-content'),
+        articleHeight = article.outerHeight(), // NOTE initial value may be wrong on Firefox due to timing of less.js
         flowNavHeight = function(force) {
             if (!(force || nav.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
-            nav.css('max-height', window.innerHeight - (nav.offset().top - $(window).scrollTop()));
+            nav.css('max-height', Math.min(articleHeight, window.innerHeight - (nav.offset().top - $(window).scrollTop())));
         },
         lockNavHeight = function() {
-            nav.css('max-height', window.innerHeight - subHeader.height());
+            nav.css('max-height', Math.min(articleHeight, window.innerHeight - subHeader.height()));
         },
         updateNavWidth = function() {
             nav.css('width', Math.floor(nav.parent()[0].getBoundingClientRect().width));
         },
+        electAffixBehavior = function(e) {
+          // NOTE effectively disable affix behavior when nav height is constrained to article column height
+          if (nav.height() === articleHeight) {
+            nav.data('bs.affix').affixed = false;
+            nav.removeClass('affix affix-bottom').addClass('affix-top');
+            e.preventDefault();
+          }
+        },
         updateNavDimensions = function(e) {
-            if (isSmallScreen() || !nav.is(':visible')) {
-                if (e && e.type === 'resize') {
+            if (isSmallScreen()) {
+                if (e.type === 'resize') {
+                    updateAffixOffset(); // NOTE header and footer height change based on screen size
                     $(window).off('scroll', flowNavHeight);
                     nav.css({ 'width': '', 'max-height': '' });
                 }
                 return;
             }
-            var type = e ? e.type : 'resize';
-            if (type === 'affixed-top' || (type === 'resize' && nav.hasClass('affix-top'))) {
+            var type = e.type;
+            if (type === 'resize') {
+                updateAffixOffset(); // NOTE header and footer height change based on screen size
+                if (!nav.is(':visible')) return;
+                updateNavWidth(); // NOTE always set width as it corrects bleed in WebKit caused by scrollbar
+                articleHeight = article.outerHeight();
+                if (nav.hasClass('affix-top')) type = 'affixed-top';
+            }
+            else if (type === 'init') {
+                updateNavWidth(); // NOTE always set width as it corrects bleed in WebKit caused by scrollbar
+                articleHeight = article.outerHeight();
+                if (nav.hasClass('affix-top')) type = 'affixed-top';
+            }
+            // NOTE for drastic movements, the positioning logic sometimes needs a little nudge
+            else if (type !== 'affixed') nav.trigger('click.bs.affix.data-api');
+
+            if (type === 'affixed-top') {
                 $(window).off('scroll', flowNavHeight).scroll(flowNavHeight);
                 flowNavHeight(true);
             }
@@ -267,14 +297,6 @@ function initSiteNav() {
                 $(window).off('scroll', flowNavHeight);
                 lockNavHeight();
             }
-            // NOTE set width even when affix-top as it corrects bleed in WebKit caused by scrollbar
-            if (type === 'resize') {
-              // NOTE header and footer height change based on screen size
-              if (e) updateAffixOffset();
-              updateNavWidth();
-            }
-            // NOTE for drastic movements, the positioning logic sometimes needs a little nudge
-            nav.trigger('click.bs.affix.data-api');
         },
         calcAffixOffset = function() {
             return { top: header.height(), bottom: footer.outerHeight() };
@@ -283,8 +305,11 @@ function initSiteNav() {
             nav.data('bs.affix').options.offset = calcAffixOffset();
         };
 
+    // NOTE order of event registration is intentional
+    nav.on('affix.bs.affix', electAffixBehavior);
     nav.affix({ offset: calcAffixOffset() });
-    nav.on('resize affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateNavDimensions).trigger('resize');
+    // NOTE affixed events only triggered if subject is visible
+    nav.on('init affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateNavDimensions).trigger('init');
     $(window).resize(updateNavDimensions);
 
     //Collapse all lists
