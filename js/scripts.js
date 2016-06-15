@@ -346,9 +346,9 @@ function place_scroll_marker(el, markerClass) {
         link = el.find('> a'),
         height = link.innerHeight() + parseInt(el.css('padding-top'), 10) + parseInt(el.css('padding-bottom'), 10);
     nav.find('.' + markerClass)
-        .show()
-        .offset({ top: el.offset().top + nav.scrollTop() })
-        .height(height);
+        .offset({ top: el.offset().top })
+        .height(height)
+        .show();
 }
 
 function isSmallScreen() {
