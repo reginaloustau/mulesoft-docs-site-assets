@@ -77,6 +77,7 @@ function initContentToc() {
     var header = $('.header'),
         subHeader = $('.sub-header'),
         footer = $('.footer'),
+        notificationBar = $('.older-version-notification'),
         // NOTE due to less.js, margins may not be set when this function is called, so hardcode values for now
         //tocMargin = { top: parseFloat(toc.css('margin-top')), bottom: parseFloat(toc.css('margin-bottom')) },
         tocMargin = { top: 53, bottom: 20 },
@@ -114,7 +115,7 @@ function initContentToc() {
             }
         },
         calcAffixOffset = function() {
-            return { top: header.height(), bottom: footer.outerHeight() + tocMargin.bottom };
+            return { top: header.height() + notificationBar.outerHeight(), bottom: footer.outerHeight() + tocMargin.bottom };
         },
         updateAffixOffset = function() {
             toc.data('bs.affix').options.offset = calcAffixOffset();
@@ -132,6 +133,7 @@ function initContentToc() {
     // NOTE order of event registration is intentional; affixed events only triggered if subject is visible
     toc.on('affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateTocHeight);
     toc.affix({ offset: calcAffixOffset() });
+    less.pageLoadFinished.then(updateAffixOffset); // TODO remove once build performs LESS compilation instead of less.js
     $(window).resize(updateTocHeight);
 
     // TODO update active link on resize as well
@@ -245,13 +247,24 @@ function initSiteNav() {
         subHeader = $('.sub-header'),
         footer = $('.footer'),
         article = $('.article-content'),
-        articleHeight = article.outerHeight(), // NOTE initial value may be wrong on Firefox due to timing of less.js
+        notificationBar = $('.older-version-notification'),
+        calcArticleHeight = function() {
+            return article.outerHeight() + notificationBar.outerHeight();
+        },
+        // NOTE initial value of articleHeight may be wrong on Firefox due to timing of less.js
+        articleHeight = calcArticleHeight(),
         flowNavHeight = function(force) {
             if (!(force || nav.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
-            nav.css('max-height', Math.min(articleHeight, window.innerHeight - (nav.offset().top - $(window).scrollTop())));
+            var navHeight = Math.min(articleHeight, window.innerHeight - (nav.offset().top - $(window).scrollTop()));
+            // NOTE using height instead of max-height provides a slighly smoother experience
+            // NOTE due to layout, height of sidebar column must exceed height of notification bar
+            nav.css('height', navHeight).parent().css('height', navHeight);
         },
         lockNavHeight = function() {
-            nav.css('max-height', Math.min(articleHeight, window.innerHeight - subHeader.height()));
+            var navHeight = Math.min(articleHeight, window.innerHeight - subHeader.height());
+            // NOTE using height instead of max-height provides a slighly smoother experience
+            // NOTE due to layout, height of sidebar column must exceed height of notification bar
+            nav.css('height', navHeight).parent().css('height', navHeight);
         },
         updateNavWidth = function() {
             nav.css('width', Math.floor(nav.parent()[0].getBoundingClientRect().width));
@@ -269,7 +282,7 @@ function initSiteNav() {
                 if (e.type === 'resize') {
                     updateAffixOffset(); // NOTE header and footer height change based on screen size
                     $(window).off('scroll', flowNavHeight);
-                    nav.css({ 'width': '', 'max-height': '' });
+                    nav.css({ 'width': '', 'height': '' }).parent().css('height', '');
                 }
                 return;
             }
@@ -278,12 +291,12 @@ function initSiteNav() {
                 updateAffixOffset(); // NOTE header and footer height change based on screen size
                 if (!nav.is(':visible')) return;
                 updateNavWidth(); // NOTE always set width as it corrects bleed in WebKit caused by scrollbar
-                articleHeight = article.outerHeight();
+                articleHeight = calcArticleHeight();
                 if (nav.hasClass('affix-top')) type = 'affixed-top';
             }
             else if (type === 'init') {
                 updateNavWidth(); // NOTE always set width as it corrects bleed in WebKit caused by scrollbar
-                articleHeight = article.outerHeight();
+                articleHeight = calcArticleHeight();
                 if (nav.hasClass('affix-top')) type = 'affixed-top';
             }
             // NOTE for drastic movements, the positioning logic sometimes needs a little nudge
