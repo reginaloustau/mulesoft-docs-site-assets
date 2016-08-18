@@ -64,10 +64,10 @@ body{
   background: -ms-linear-gradient(left,  #f4f5f6,#f4f5f6 50%,#ffffff 50%,#ffffff 100%); /* IE10+ */
   background: linear-gradient(to right,  #f4f5f6,#f4f5f6 50%,#ffffff 50%,#ffffff 100%); /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f4f5f6', endColorstr='#ffffff',GradientType=1 ); /* IE6-9 */
+
 }
 
-// FIXME this nth-child is very ambiguous (doesn't consider CSS class)
-.container .row:nth-child(2) {
+.container .row:nth-child(2){
   background: #fff; /* Old browsers */
   background: -moz-linear-gradient(left,   #f4f5f6,#f4f5f6 25%,#ffffff 25%,#ffffff 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, right top, color-stop(0%,#f4f5f6), color-stop(25%,#f4f5f6), color-stop(25%,#ffffff), color-stop(100%,#ffffff)); /* Chrome,Safari4+ */
@@ -75,12 +75,7 @@ body{
   background: -o-linear-gradient(left,   #f4f5f6,#f4f5f6 25%,#ffffff 25%,#ffffff 100%); /* Opera 11.10+ */
   background: -ms-linear-gradient(left, #f4f5f6,#f4f5f6 25%,#ffffff 25%,#ffffff 100%); /* IE10+ */
   background: linear-gradient(to right,  #f4f5f6,#f4f5f6 25%,#ffffff 25%,#ffffff 100%); /* W3C */
-}
 
-@media (max-width: 992px) {
-  .container .row:nth-child(2) {
-    background: #fff;
-  }
 }
 
 h1, h2, h3, h4{
@@ -99,11 +94,7 @@ a:focus {
   background: url('../img/fancybox_overlay.png');
 }
 
-.affix-bottom {
-  position: absolute;
-}
-
-@media (min-width: 768px) {
+@media (max-width: 992px) {
   .container {
     width: auto;
   }
