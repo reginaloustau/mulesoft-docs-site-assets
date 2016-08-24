@@ -1,18 +1,18 @@
 var SCREEN_SMALL_MAX = 992;
-$.fn.reverse = Array.prototype.reverse;
 
+/* Initialization */
 $(function() {
     initSubHeader();
-    // QUESTION should initSiteNav come before initSubHeader? Keep in mind, initSubHeader collapses nav
-    initSiteNav();
-    initContentToc();
+    initSidebarNav();
+    initScrollMenu();
     fixEncoding();
     $('body').show();
 });
 
-$(window).load(function() {
+$( window ).load(function() {
     initFancyBox();
 });
+
 
 function initFancyBox () {
 
@@ -31,310 +31,181 @@ function initFancyBox () {
 }
 
 function initSubHeader() {
-    var header = $('.header'),
-        subHeader = $('.sub-header'),
-        container = $('.container'),
-        footer = $('.footer'),
-        treeIcon = $('.tree-icon'),
-        searchField = $('.search-field'),
-        updateSubHeaderStatus = function(e) {
-            container.toggleClass('affixed-sub-header', e.type !== 'affixed-top');
-        },
-        onResize = function() {
-            subHeader.css('width', container.css('width'));
-            updateAffixOffset(); // NOTE header and footer height change based on screen size
-            if (isSmallScreen() && !treeIcon.hasClass('tree-closed')) toggleSiteNav();
-        },
-        calcAffixOffset = function() {
-            return { top: header.height(), bottom: footer.outerHeight() };
-        },
-        updateAffixOffset = function() {
-            subHeader.data('bs.affix').options.offset = calcAffixOffset();
-        };
+    if (window.innerWidth < SCREEN_SMALL_MAX) toggleSidebarNav();
 
-    treeIcon.click(toggleSiteNav);
-
-    subHeader.affix({ offset: calcAffixOffset() });
-    updateSubHeaderStatus({ type: subHeader.hasClass('affix-top') ? 'affixed-top' : 'affixed' });
-    // NOTE capture transition between static and fixed/absolute positioning of sub-header
-    subHeader.on('affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateSubHeaderStatus);
-    onResize();
-    $(window).resize(onResize);
-
-    searchField.data('placeholder', searchField.attr('placeholder'));
-    searchField.focus(function() {
-        searchField.attr('placeholder', '');
+    //Fixed subheader
+    $(window).resize(function(){
+        $('.sub-header').css('width', $('.container').css('width'));
+        scrollbarAdjusting();
+        if (window.innerWidth < SCREEN_SMALL_MAX && !$('.tree-icon').hasClass('tree-closed')) {
+            toggleSidebarNav();
+        }
     });
-    searchField.blur(function() {
-        searchField.attr('placeholder', searchField.data('placeholder'));
-    });
-}
 
-function initContentToc() {
-    var toc = $('.scroll-menu');
-    if (!toc.length) return;
-
-    var header = $('.header'),
-        subHeader = $('.sub-header'),
-        footer = $('.footer'),
-        notificationBar = $('.older-version-notification'),
-        // NOTE due to less.js, margins may not be set when this function is called, so hardcode values for now
-        //tocMargin = { top: parseFloat(toc.css('margin-top')), bottom: parseFloat(toc.css('margin-bottom')) },
-        tocMargin = { top: 53, bottom: 20 },
-        flowTocHeight = function(force) {
-            if (!(force || toc.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
-            toc.css('max-height', window.innerHeight - (toc.offset().top - $(window).scrollTop()) - tocMargin.bottom);
-        },
-        lockTocHeight = function() {
-           toc.css('max-height', window.innerHeight - subHeader.height() - tocMargin.top - tocMargin.bottom);
-        },
-        updateTocHeight = function(e) {
-            if (isSmallScreen()) { // !toc.is(':visible') is implied
-                if (e.type === 'resize') {
-                    updateAffixOffset(); // NOTE header and footer height change based on screen size
-                    $(window).off('scroll', flowTocHeight);
-                    toc.css('max-height', '');
-                }
-                return;
-            }
-            var type = e.type;
-            if (type === 'resize') {
-                updateAffixOffset(); // NOTE header and footer height change based on screen size
-                // NOTE for drastic movements, the positioning logic sometimes needs a little nudge.
-                // Specifically, trigger deferred handler one extra time to correct affix-bottom
-                // positioning when toggling window between small & large screen size.
-                toc.trigger('click.bs.affix.data-api');
-            }
-            if (type === 'affixed-top' || (type === 'resize' && toc.hasClass('affix-top'))) {
-                $(window).off('scroll', flowTocHeight).scroll(flowTocHeight);
-                flowTocHeight(true);
-            }
-            else {
-                $(window).off('scroll', flowTocHeight);
-                lockTocHeight();
-            }
-        },
-        calcAffixOffset = function() {
-            return { top: header.height() + notificationBar.outerHeight(), bottom: footer.outerHeight() + tocMargin.bottom };
-        },
-        updateAffixOffset = function() {
-            toc.data('bs.affix').options.offset = calcAffixOffset();
-        },
-        // TODO might be nicer to scroll only when necessary to bring element into view
-        scrollToActiveLink = function(scrollTo) {
-            if (toc.data('scrolling-to') === scrollTo) return;
-            toc.stop('fx.toc.scroll', true).data('scrolling-to', scrollTo).animate({ scrollTop: scrollTo }, {
-                queue: 'fx.toc.scroll',
-                duration: 250,
-                complete: function() { $(this).removeData('scrolling-to'); }
-            }).dequeue('fx.toc.scroll');
-        };
-
-    // NOTE order of event registration is intentional; affixed events only triggered if subject is visible
-    toc.on('affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateTocHeight);
-    toc.affix({ offset: calcAffixOffset() });
-    less.pageLoadFinished.then(updateAffixOffset); // TODO remove once build performs LESS compilation instead of less.js
-    $(window).resize(updateTocHeight);
-
-    // TODO update active link on resize as well
-    // TODO disable while page is being scrolled to target of clicked item
     $(window).scroll(function() {
-        if (!toc.is(':visible')) return;
-        var links = toc.find('.scroll-menu-link'),
-            windowScrollY = $(this).scrollTop(),
-            // QUESTION is there a more stable way to calculate cushion?
-            cushion = parseFloat($('.sub-header + .row').css('margin-top')) + 20,
-            scrollMax = toc[0].scrollHeight - toc.height(),
-            scrollable = scrollMax > 0,
-            matchFound, linkTop;
-        links.removeClass('active').reverse().each(function() {
-            var target = $(this.hash);
-            if (target.length && windowScrollY >= target.offset().top - cushion) {
-                $(this).addClass('active');
-                if (scrollable && (linkTop = $(this).position().top)) {
-                    var scrollFrom = toc.scrollTop(),
-                        scrollTo = scrollFrom + linkTop;
-                    if (scrollTo < scrollMax || (scrollTo >= scrollMax && scrollFrom < scrollMax)) {
-                        scrollToActiveLink(scrollTo);
-                    }
-                }
-                return !(matchFound = true);
-            }
-        });
-        if (!matchFound && links.length) {
-            if (scrollable && toc.scrollTop()) scrollToActiveLink(0);
-            // NOTE enable the following line to highlight first element if no element is matched
-            //links.last().addClass('active');
+        var subheader = $('.sub-header'),
+            container = $('.container .cont-body');
+         var bottomfooter =  $('.footer .container');
+         var devicewidth = $(window).width();
+
+        if ($(this).scrollTop() >= $('.header').height()) {
+            subheader.css({
+                'position': 'fixed',
+                'z-index': '999',
+                'top': '0',
+                'width': devicewidth
+            });
+            //container.css('margin-top', subheader.height());
+            container.addClass('sub-header-fixed');
+            bottomfooter.removeClass('sub-header-fixed');
+        }
+        else {
+            subheader.css('position', 'static');
+            //container.css('margin-top', 0);
+            container.removeClass('sub-header-fixed');
+            $('.tree-icon').css('display', 'inline-block');
         }
     });
 
-    toc.find('.scroll-menu-link').click(function(e) {
-        e.preventDefault();
-        var target = $(this.hash);
-        if (target.length) {
-            // NOTE we assume that any amount of scrolling pushes us to a fixed sub-header
-            $('html, body').animate({ scrollTop: target.offset().top - subHeader.height() }, 250);
-            history.pushState({}, '', this.hash);
-        }
+    //Tree Toggle button
+    $('.tree-icon').unbind('click').click(toggleSidebarNav);
+
+    //Remove Search input box placeholder on focus
+    $('.search-field').focus(function(){
+        $(this).data('placeholder',$(this).attr('placeholder'))
+        $(this).attr('placeholder','');
+    });
+    $('.search-field').blur(function(){
+        $(this).attr('placeholder',$(this).data('placeholder'));
     });
 }
 
-function toggleSiteNav(e) {
+/*
+function scrollbarAdjusting(){
+    $('.scroll-menu').css('max-height',$(window).height() * .8 + 'px');
+    var y = $(this).scrollTop();
+
+
+    var collapse = y + $('.scroll-menu').height() > $('.footer').offset().top - 180;
+    if(!collapse){
+        $('.scroll-menu').css('top', y + 'px');
+    }
+    else {
+        $('.scroll-menu').css('top', $('.footer').offset().top -  $('.scroll-menu').height() - 180 + 'px');
+    }
+}
+*/
+
+function scrollbarAdjusting(){
+    $('.scroll-menu').css('max-height',$(window).height() * .8 + 'px');
+    var y = $(this).scrollTop();
+    //alert($('.footer').offset().top - 190);
+    var collapse = y + $('.scroll-menu').height() > $('.footer').offset().top - 290;
+    if(collapse){
+        $('.scroll-menu').css('position','absolute');
+        $('.scroll-menu').css('top', $('.footer').offset().top -  $('.scroll-menu').height() - 390 + 'px');
+    }
+    else {
+        $('.scroll-menu').css('position','fixed');
+        $('.scroll-menu').css('top', '120px');
+    }
+}
+
+function toggleSidebarNav(e) {
     if (e) e.preventDefault();
     (e ? $(this) : $('.tree-icon')).toggleClass('tree-closed');
-    var navColumn = $('.sidebar-nav'),
-        nav = navColumn.find('nav');
-        action = navColumn.is(':visible') ? 'close' : 'open',
+    var sidebarNav = $('.sidebar-nav'),
+        sidebarNavOpen = sidebarNav.is(':visible'),
+        sidebarNavContent = sidebarNav.find('nav');
         toc = $('.scroll-menu'),
-        tocContainer = null,
-        articleContentColumn = $('.article-content'),
-        articleCols = action === 'open' ? { from: 'col-md-10', to: 'col-md-7' } : { from: 'col-md-7', to: 'col-md-10' },
+        articleContent = $('.article-content'),
+        articleCols = {},
         speed = 250;
-    if (isSmallScreen()) {
-        navColumn.toggle();
-        articleContentColumn.removeClass(articleCols.from).addClass(articleCols.to);
-        // TODO can we skip placing scroll marker if it's already placed?
-        if (action === 'open') place_scroll_marker(nav.find('li.active'), 'active-marker');
-        return;
-    }
     // NOTE keep toc from jumping while width of sidebar transitions
-    if (toc.length) {
-        var tocContainerOffset = (tocContainer = toc.parent()).offset();
-        tocContainer.css({ position: 'absolute', top: tocContainerOffset.top, left: tocContainerOffset.left });
-        if (toc.hasClass('affix')) toc.css('left', toc.offset().left);
+    toc.css('left', toc.offset().left);
+    if (sidebarNavOpen) { // close
+        articleCols = { from: 'col-md-7', to: 'col-md-10' }
+        sidebarNavContent.css('width', sidebarNavContent[0].getBoundingClientRect().width);
     }
-    var fromContentWidth = articleContentColumn[0].getBoundingClientRect().width;
-    articleContentColumn.removeClass(articleCols.from).addClass(articleCols.to);
-    if (action === 'open') {
-        // NOTE open menu temporarily to collect measurements
-        navColumn.show();
-        nav.trigger('init');
-        // TODO can we skip placing scroll marker if it's already placed?
-        place_scroll_marker(nav.find('li.active'), 'active-marker');
-        navColumn.hide();
+    else { // open
+        articleCols = { from: 'col-md-10', to: 'col-md-7' }
+        sidebarNav.show();
+        sidebarNavContent.css('width', sidebarNavContent[0].getBoundingClientRect().width);
+        sidebarNav.hide();
     }
-    var toContentWidth = articleContentColumn[0].getBoundingClientRect().width;
-    articleContentColumn.css('width', fromContentWidth);
-    navColumn.animate({ width: 'toggle', opacity: 'toggle' }, {
-        queue: 'fx.sidebar',
-        duration: speed,
-        // NOTE set overflow to visible to prevent nav in fixed position from disappearing in WebKit
-        start: function() { navColumn.css('overflow', 'visible'); },
-        // NOTE keep toc position synchronized throughout animation (used primarily when near bottom of page)
-        progress: function() { toc.trigger('scroll.bs.affix.data-api'); },
-        complete: function() {
-            if (toc.length) {
-                tocContainer.css({ position: '', top: '', left: '' })
-                toc.css('left', '');
-            }
-            toc.trigger('scroll.bs.affix.data-api');
-        }
-    });
-    articleContentColumn.animate({ width: toContentWidth }, {
-        queue: 'fx.sidebar',
-        duration: speed,
-        complete: function() {
-            articleContentColumn.css('width', '');
-            toc.trigger('scroll.bs.affix.data-api');
-        }
-    });
-    $([navColumn[0], articleContentColumn[0]]).dequeue('fx.sidebar');
+    var fromContentWidth = articleContent[0].getBoundingClientRect().width;
+    articleContent.removeClass(articleCols.from).addClass(articleCols.to);
+    var toContentWidth = articleContent[0].getBoundingClientRect().width;
+    articleContent.css('width', fromContentWidth);
+    sidebarNav.animate({ width: 'toggle', opacity: 'toggle' }, { duration: speed, queue: false, complete: function() {
+        toc.css('left', '');
+        sidebarNavContent.css('width', '');
+        // FIXME think about whether we can skip this step in certain cases; perhaps first time only?
+        if (!sidebarNavOpen) place_scroll_marker(sidebarNavContent.find('li.active'), 'active-marker');
+    }});
+    articleContent.animate({ width: toContentWidth }, { duration: speed, queue: false, complete: function() {
+        articleContent.css('width', '');
+    }});
 }
 
-function initSiteNav() {
-    var nav = $('.sidebar-nav nav'),
-        header = $('.header'),
-        subHeader = $('.sub-header'),
-        footer = $('.footer'),
-        article = $('.article-content'),
-        notificationBar = $('.older-version-notification'),
-        calcArticleHeight = function() {
-            return article.outerHeight() + notificationBar.outerHeight();
-        },
-        // NOTE initial value of articleHeight may be wrong on Firefox due to timing of less.js
-        articleHeight = calcArticleHeight(),
-        flowNavHeight = function(force) {
-            if (!(force || nav.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
-            var navHeight = Math.min(articleHeight, window.innerHeight - (nav.offset().top - $(window).scrollTop()));
-            // NOTE using height instead of max-height provides a slighly smoother experience
-            // NOTE due to layout, height of sidebar column must exceed height of notification bar
-            nav.css('height', navHeight).parent().css('height', navHeight);
-        },
-        lockNavHeight = function() {
-            var navHeight = Math.min(articleHeight, window.innerHeight - subHeader.height());
-            // NOTE using height instead of max-height provides a slighly smoother experience
-            // NOTE due to layout, height of sidebar column must exceed height of notification bar
-            nav.css('height', navHeight).parent().css('height', navHeight);
-        },
-        updateNavWidth = function() {
-            nav.css('width', Math.floor(nav.parent()[0].getBoundingClientRect().width));
-        },
-        electAffixBehavior = function(e) {
-          // NOTE effectively disable affix behavior when nav height is constrained to article column height
-          if (nav.height() === articleHeight) {
-            nav.data('bs.affix').affixed = false;
-            nav.removeClass('affix affix-bottom').addClass('affix-top');
-            e.preventDefault();
-          }
-        },
-        updateNavDimensions = function(e) {
-            if (isSmallScreen()) {
-                if (e.type === 'resize') {
-                    updateAffixOffset(); // NOTE header and footer height change based on screen size
-                    $(window).off('scroll', flowNavHeight);
-                    nav.css({ 'width': '', 'height': '' }).parent().css('height', '');
-                }
-                return;
-            }
-            var type = e.type;
-            if (type === 'resize') {
-                updateAffixOffset(); // NOTE header and footer height change based on screen size
-                if (!nav.is(':visible')) return;
-                updateNavWidth(); // NOTE always set width as it corrects bleed in WebKit caused by scrollbar
-                articleHeight = calcArticleHeight();
-                if (nav.hasClass('affix-top')) type = 'affixed-top';
-            }
-            else if (type === 'init') {
-                updateNavWidth(); // NOTE always set width as it corrects bleed in WebKit caused by scrollbar
-                articleHeight = calcArticleHeight();
-                if (nav.hasClass('affix-top')) type = 'affixed-top';
-            }
-            // NOTE for drastic movements, the positioning logic sometimes needs a little nudge
-            else if (type !== 'affixed') nav.trigger('click.bs.affix.data-api');
+function initScrollMenu(){
 
-            if (type === 'affixed-top') {
-                $(window).off('scroll', flowNavHeight).scroll(flowNavHeight);
-                flowNavHeight(true);
-            }
-            else {
-                $(window).off('scroll', flowNavHeight);
-                lockNavHeight();
-            }
-        },
-        calcAffixOffset = function() {
-            return { top: header.height(), bottom: footer.outerHeight() };
-        },
-        updateAffixOffset = function() {
-            nav.data('bs.affix').options.offset = calcAffixOffset();
-        };
+    scrollbarAdjusting();
 
-    // NOTE order of event registration is intentional
-    nav.on('affix.bs.affix', electAffixBehavior);
-    nav.affix({ offset: calcAffixOffset() });
-    // NOTE affixed events only triggered if subject is visible
-    nav.on('init affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateNavDimensions).trigger('init');
-    $(window).resize(updateNavDimensions);
+    //Scroll-menu active links
+    $(window).scroll(function () {
+
+        scrollbarAdjusting();
+        var y = $(this).scrollTop();
+
+        $('.scroll-menu-link').each(function (event) {
+            if (y < $($(this).attr('href')).offset().top) {
+                var prev = $(this).prev();
+                var activeElement =  prev.length == 0? $(this) : prev;
+                $('.scroll-menu-link').removeClass('active');
+                activeElement.addClass('active');
+                return false;
+            }
+        });
+
+    });
+
+
+    //Scroll-menu smooth scroll
+    $('.scroll-menu a[href*=#]:not([href=#])').click(function (e) {
+        if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+            var target = $(this.hash);
+            var nameVal = this.hash.slice(1);
+            target = target.length ? target : $('[name=' + nameVal + ']');
+
+            if (target.length) {
+                $('html,body').animate({
+                    scrollTop: (target.offset().top - 150)
+                }, 300);
+                history.pushState({}, null,'#' + nameVal);
+                return false;
+            }
+        }
+
+
+    });
+}
+
+/* Setting sidebar tree nav */
+function initSidebarNav(){
+
 
     //Collapse all lists
-    nav.find('li:has(ul)').addClass('parent_li');
+    $('.sidebar-nav nav li:has(ul)').addClass('parent_li');
     openExpandedSubtree();
 
-    // FIXME can we make it work without this setTimeout?
-    if (isNotSmallScreen()) setTimeout(function() { place_scroll_marker(nav.find('li.active'), 'active-marker'); }, 0);
+    if (window.innerWidth >= SCREEN_SMALL_MAX) {
+        // FIXME can we make it work without this setTimeout?
+        setTimeout(function() { place_scroll_marker($('.sidebar-nav nav li.active'), 'active-marker'); }, 0);
+    }
 
-    nav.find('li.parent_li > i').click(function(e) {
-        e.preventDefault();
-        var parent = $(this).parent(),
+    $('.sidebar-nav nav li.parent_li > i').on('click', function (e) {
+        var parent = $(this).parent('li.parent_li'),
             children = parent.find('> ul');
 
         place_scroll_marker(parent, 'marker');
@@ -342,59 +213,56 @@ function initSiteNav() {
         // Show/hide a sublist
         if (children.is(':visible')) {
             children.slideUp('fast');
-            $(this).removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
+            $(this).addClass('glyphicon-chevron-right').removeClass('glyphicon-chevron-down');
 
             /* Remove active trail from the node to the childrens */
-            parent.removeClass('expanded').find('li.expanded').removeClass('expanded');
+            parent.removeClass('expanded');
+            parent.find('li.expanded').removeClass('expanded');
 
             // Hide active-marker
-            if (children.find('li.active').length) {
+            if (children.find('.active').length) {
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 100);
             }
-        }
-        else {
+
+        } else {
             children.slideDown('fast');
-            $(this).removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
+            $(this).addClass('glyphicon-chevron-down').removeClass('glyphicon-chevron-right');
             parent.addClass('expanded');
 
-            if (children.find('li.active').is(':visible')){
+            if (children.find('.active').is(':visible')){
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 250);
             }
         }
+        e.stopPropagation();
     });
 
-    nav.find('li').hover(function() {
+    $('.sidebar-nav nav li').hover(function() {
         $('.marker').show();
         place_scroll_marker($(this), 'marker');
-    }, function() {
-        if (!$('.tree').is(':hover')) $('.marker').hide();
+    },function() {
+        if (!$('.tree').is(':hover')) {
+            $('.marker').hide();
+        }
     });
 
-    function openExpandedSubtree() {
-        nav.find('li.parent_li > ul').hide(0);
-        nav.find('li.parent_li > i').removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
-        nav.find('li.parent_li.expanded > ul').show(0);
-        nav.find('li.parent_li.expanded > i').removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
+    function openExpandedSubtree(){
+        $('.sidebar-nav nav li.parent_li > ul').hide(0);
+        $('.sidebar-nav nav li.parent_li > i').addClass('glyphicon-chevron-right').removeClass('glyphicon-chevron-down');
+        $('.sidebar-nav nav li.parent_li.expanded > ul').show(0);
+        $('.sidebar-nav nav li.parent_li.expanded > i').addClass('glyphicon-chevron-down').removeClass('glyphicon-chevron-right');
     }
 }
 
-function place_scroll_marker(el, markerClass) {
-    if (!el.length) return;
-    var nav = $('.sidebar-nav nav'),
-        link = el.find('> a'),
-        height = link.innerHeight() + parseInt(el.css('padding-top'), 10) + parseInt(el.css('padding-bottom'), 10);
-    nav.find('.' + markerClass)
-        .offset({ top: el.offset().top })
-        .height(height)
-        .show();
-}
-
-function isSmallScreen() {
-    return window.innerWidth <= SCREEN_SMALL_MAX;
-}
-
-function isNotSmallScreen() {
-    return window.innerWidth > SCREEN_SMALL_MAX;
+function place_scroll_marker(elem, markerClass) {
+    if (elem.length == 0) return;
+    var offsetTop = elem.offset().top,
+        offsetLeft = $(".tree").left,
+        height = 0,
+        link = elem.find("> a"),
+        height = link.innerHeight() + parseInt(elem.css('padding-top'), 10) + parseInt(elem.css('padding-bottom'), 10);
+    $(".sidebar-nav ." + markerClass).show();
+    $(".sidebar-nav ." + markerClass).offset({top: offsetTop, left: offsetLeft});
+    $(".sidebar-nav ." + markerClass).height(height);
 }
 
 function fixEncoding(){
