@@ -334,14 +334,20 @@ function initSiteNav() {
 
     nav.find('li.parent_li > i').click(function(e) {
         e.preventDefault();
+        if (nav.data('sliding')) return;
         var parent = $(this).parent(),
-            children = parent.find('> ul');
+            children = parent.find('> ul'),
+            activeItem = nav.find('li.active');
 
-        place_scroll_marker(parent, 'marker');
+        nav.data('sliding', true);
 
-        // Show/hide a sublist
+        // Hide sublist
         if (children.is(':visible')) {
-            children.slideUp('fast');
+            children.slideUp({
+              duration: 'fast',
+              progress: function() { place_scroll_marker(activeItem, 'active-marker'); },
+              complete: function() { nav.removeData('sliding'); }
+            });
             $(this).removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
 
             /* Remove active trail from the node to the childrens */
@@ -352,22 +358,28 @@ function initSiteNav() {
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 100);
             }
         }
+        // Show sublist
         else {
-            children.slideDown('fast');
+            children.slideDown({
+              duration: 'fast',
+              progress: function() { place_scroll_marker(activeItem, 'active-marker'); },
+              complete: function() { nav.removeData('sliding'); }
+            });
             $(this).removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
             parent.addClass('expanded');
 
-            if (children.find('li.active').is(':visible')){
+            if (children.find('li.active').is(':visible')) {
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 250);
             }
         }
     });
 
     nav.find('li').hover(function() {
-        $('.marker').show();
+        // NOTE we seem to have to show before placing for this to work
+        nav.find('.marker').show();
         place_scroll_marker($(this), 'marker');
     }, function() {
-        if (!$('.tree').is(':hover')) $('.marker').hide();
+        if (!$('.tree').is(':hover')) nav.find('.marker').hide();
     });
 
     function openExpandedSubtree() {
@@ -383,10 +395,9 @@ function place_scroll_marker(el, markerClass) {
     var nav = $('.sidebar-nav nav'),
         link = el.find('> a'),
         height = link.innerHeight() + parseInt(el.css('padding-top'), 10) + parseInt(el.css('padding-bottom'), 10);
-    nav.find('.' + markerClass)
+    return nav.find('.' + markerClass)
         .offset({ top: el.offset().top })
-        .height(height)
-        .show();
+        .height(height);
 }
 
 function isSmallScreen() {
