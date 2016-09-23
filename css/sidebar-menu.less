@@ -63,6 +63,12 @@
             color: @mulesoft-light-blue;
           }
         }
+        &:last-child:not(.parent_li) { // trailing leaf item
+          margin-bottom: 0.5em;
+        }
+        &.parent_li + li { // leaf item following intermedia item
+          margin-top: 0;
+        }
       }
     }
   }
