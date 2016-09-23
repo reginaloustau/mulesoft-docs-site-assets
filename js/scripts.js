@@ -335,7 +335,8 @@ function initSiteNav() {
     nav.find('li.parent_li > i').click(function(e) {
         e.preventDefault();
         if (nav.data('sliding')) return;
-        var parent = $(this).parent(),
+        var arrow = $(this),
+            parent = arrow.parent(),
             children = parent.find('> ul'),
             activeItem = nav.find('li.active');
 
@@ -346,12 +347,13 @@ function initSiteNav() {
             children.slideUp({
               duration: 'fast',
               progress: function() { place_scroll_marker(activeItem, 'active-marker'); },
-              complete: function() { nav.removeData('sliding'); }
+              complete: function() {
+                // Remove active trail from the node to the children
+                parent.removeClass('expanded').find('li.expanded').removeClass('expanded');
+                arrow.removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
+                nav.removeData('sliding');
+              }
             });
-            $(this).removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-right');
-
-            /* Remove active trail from the node to the childrens */
-            parent.removeClass('expanded').find('li.expanded').removeClass('expanded');
 
             // Hide active-marker
             if (children.find('li.active').length) {
@@ -365,8 +367,8 @@ function initSiteNav() {
               progress: function() { place_scroll_marker(activeItem, 'active-marker'); },
               complete: function() { nav.removeData('sliding'); }
             });
-            $(this).removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
             parent.addClass('expanded');
+            arrow.removeClass('glyphicon-chevron-right').addClass('glyphicon-chevron-down');
 
             if (children.find('li.active').is(':visible')) {
                 $('.active-marker').animate({ width: 'toggle', opacity: 'toggle' }, 250);
