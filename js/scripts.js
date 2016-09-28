@@ -14,9 +14,8 @@ $(window).load(function() {
     initFancyBox();
 });
 
-function initFancyBox () {
-
-    $(document).bind('page:change', function(){
+function initFancyBox() {
+    $(document).bind('page:change', function() {
         $('.fancybox').fancybox({ parent: "body"})
     });
 
@@ -78,9 +77,7 @@ function initContentToc() {
         subHeader = $('.sub-header'),
         footer = $('.footer'),
         notificationBar = $('.older-version-notification'),
-        // NOTE due to less.js, margins may not be set when this function is called, so hardcode values for now
-        //tocMargin = { top: parseFloat(toc.css('margin-top')), bottom: parseFloat(toc.css('margin-bottom')) },
-        tocMargin = { top: 53, bottom: 20 },
+        tocMargin = { top: parseFloat(toc.css('margin-top')), bottom: parseFloat(toc.css('margin-bottom')) },
         flowTocHeight = function(force) {
             if (!(force || toc.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
             toc.css('max-height', window.innerHeight - (toc.offset().top - $(window).scrollTop()) - tocMargin.bottom);
@@ -133,7 +130,6 @@ function initContentToc() {
     // NOTE order of event registration is intentional; affixed events only triggered if subject is visible
     toc.on('affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateTocHeight);
     toc.affix({ offset: calcAffixOffset() });
-    less.pageLoadFinished.then(updateAffixOffset); // TODO remove once build performs LESS compilation instead of less.js
     $(window).resize(updateTocHeight);
 
     // TODO update active link on resize as well
@@ -251,7 +247,6 @@ function initSiteNav() {
         calcArticleHeight = function() {
             return article.outerHeight() + notificationBar.outerHeight();
         },
-        // NOTE initial value of articleHeight may be wrong on Firefox due to timing of less.js
         articleHeight = calcArticleHeight(),
         flowNavHeight = function(force) {
             if (!(force || nav.hasClass('affix-top'))) return; // guards against race condition w/ scroll event
@@ -329,8 +324,7 @@ function initSiteNav() {
     nav.find('li:has(ul)').addClass('parent_li');
     openExpandedSubtree();
 
-    // FIXME can we make it work without this setTimeout?
-    if (isNotSmallScreen()) setTimeout(function() { place_scroll_marker(nav.find('li.active'), 'active-marker'); }, 0);
+    if (isNotSmallScreen()) place_scroll_marker(nav.find('li.active'), 'active-marker');
 
     nav.find('li.parent_li > i').click(function(e) {
         e.preventDefault();
@@ -410,8 +404,8 @@ function isNotSmallScreen() {
     return window.innerWidth > SCREEN_SMALL_MAX;
 }
 
-function fixEncoding(){
-    $('.article-content .listingblock .CodeRay .entity').each(function(){
+function fixEncoding() {
+    $('.article-content .listingblock .CodeRay .entity').each(function() {
         var curCont = $(this).text();
         $(this).html(curCont.replace('&amp;', '&'));
     });
