@@ -1,0 +1,179 @@
+@import "variables";
+
+.header {
+  background-color: @bgColorDark;
+}
+
+.header__logo {
+  display: block;
+  float: left;
+  height: 80px;
+  padding: 10px 0;
+}
+
+.header__logo img {
+  height: 100%;
+}
+
+.header__wrapper {
+  float: right;
+}
+
+.menu {
+  @paddingTop: 10px;
+  // why is there such a hyge z-index in the page?
+  @biggestZindexInPage: 1001;
+
+  float: left;
+  list-style: none;
+  margin: 0;
+  z-index: @biggestZindexInPage + 1;
+
+  // depth = 0
+  &[data-depth="0"] {
+    margin-right: 20px;
+  }
+
+  // depth > 0
+  &[data-depth="0"] & {
+    background-color: @bgColor;
+    display: none;
+    padding: @paddingTop 0;
+    position: absolute;
+  }
+
+  // depth = 1
+  &[data-depth="1"] {
+    left: 0;
+    top: 100%;
+  }
+
+  // depth > 1
+  &[data-depth="1"] & {
+    left: 98%;
+    top: -@paddingTop;
+  }
+
+  .menu__item:hover > & {
+    display: block;
+  }
+
+  // small triangle above level 1 menus
+  @triangleSize: 12px;
+  .menu__item:hover > &[data-depth="1"]:before {
+    border-bottom: @triangleSize solid @bgColor;
+    border-left: @triangleSize solid transparent;
+    border-right: @triangleSize solid transparent;
+    content: '';
+    display: inline-block;
+    left: 20px;
+    position: absolute;
+    top: -@triangleSize;
+  }
+}
+
+.menu__item {
+  // put ">" sprite under the link and display it when there's a submenu
+  background-image: url(../img/header_footer_sprite.svg);
+  background-position: 83.5% 55%;
+  background-repeat: no-repeat;
+  background-size: auto 200%;
+  position: relative;
+
+  .menu[data-depth="0"] & {
+    display: inline-block;
+  }
+
+  .menu[data-depth="1"] & {
+    display: block;
+  }
+}
+
+.menu__link {
+  display: block;
+  font-family: "DinPro", "openSans", Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  padding: 10px 20px;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    color: #fff;
+    text-decoration: none;
+  }
+
+  // depth >= 0
+  .menu[data-depth="0"] & {
+    background-color: @bgColorDark;
+    color: #fff;
+    height: 80px;
+    line-height: 80px;
+    padding: 0 10px;
+
+    &:hover {
+      color: @mulesoft-light-blue;
+    }
+  }
+
+  // depth >= 1
+  .menu[data-depth="1"] & {
+    background-color: @bgColor;
+    color: @grey;
+    height: auto;
+    line-height: initial;
+    min-width: 200px;
+    padding: 10px 20px;
+
+    &:hover {
+      color: white;
+    }
+  }
+
+  // there's a submenu let's reveal the ">" sprite that's underneath
+  .menu[data-depth="1"] &:first-child:not(:last-child) {
+    margin-right: 2em;
+  }
+}
+
+.header__links {
+  float: left;
+  height: 80px;
+}
+
+.header__link {
+  display: inline-block;
+  margin: 0 5px;
+  vertical-align: middle;
+}
+
+.header__links-phone {
+  background: url(../img/header_footer_sprite.svg) no-repeat;
+  background-size: 1200px auto;
+  background-position: -914px -33px;
+  height: 30px;
+  width: 35px;
+}
+
+.header__links-try,
+.header__links-mulesoft {
+  color: @mulesoft-light-blue;
+
+  &:hover {
+    color: #fff;
+    text-decoration: none;
+  }
+}
+
+.header__links-try {
+  border: 1px solid @mulesoft-light-blue;
+  padding: 7px 9px;
+
+  &:hover {
+    background: @mulesoft-light-blue;
+  }
+}
+
+.header__links-mulesoft {
+  height: 80px;
+  line-height: 80px;
+}
