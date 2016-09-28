@@ -1,6 +1,8 @@
-/* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
-/* Remove the comments around the @import statement below when using this as a custom stylesheet */
-/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400";*/
+/*!
+ * Asciidoctor 1.5.2 default and CodeRay stylesheets (http://asciidoctor.org)
+ * Copyright 2012-2016 Dan Allen, Ryan Waldron and the Asciidoctor Project
+ * Licensed under the MIT License
+ */
 article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
 audio,canvas,video{display:inline-block}
 audio:not([controls]){display:none;height:0}
