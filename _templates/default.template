@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>{{ page.title }} // MuleSoft Documentation </title>
   <link rel="shortcut icon" href="/favicon.ico"/>
   <link rel="stylesheet" type="text/css" href="/css/vendor.min.css?t=1475105894">
@@ -54,7 +55,11 @@
 
       <ul class="menu" data-depth="0">
         <li class="menu__item">
-          <a href="https://developer.mulesoft.com/anypoint-platform" class="menu__link">Platform</a>
+          <div class="menu__item-header">
+            <button class="menu__parentmenu-btn">&lt;</button>
+            <a href="https://developer.mulesoft.com/anypoint-platform" class="menu__link">Platform</a>
+            <button class="menu__submenu-btn">&gt;</button>
+          </div>
           <ul class="menu" data-depth="1">
             <li class="menu__item"><a href="https://developer.mulesoft.com/dev/anypoint-studio" class="menu__link">Studio</a></li>
             <li class="menu__item"><a href="https://developer.mulesoft.com/dev/connectors" class="menu__link">Connectors</a></li>
@@ -67,9 +72,18 @@
           </ul>
         </li>
         <li class="menu__item">
-          <a href="/" class="menu__link">Resources</a>
+          <div class="menu__item-header">
+            <button class="menu__parentmenu-btn">&lt;</button>
+            <a href="/" class="menu__link">Resources</a>
+            <button class="menu__submenu-btn">&gt;</button>
+          </div>
           <ul class="menu" data-depth="1">
-            <li class="menu__item"><a href="https://developer.mulesoft.com/getting-started/studio" class="menu__link">Getting Started</a>
+            <li class="menu__item">
+              <div class="menu__item-header">
+                <button class="menu__parentmenu-btn">&lt;</button>
+                <a href="https://developer.mulesoft.com/getting-started/studio" class="menu__link">Getting Started</a>
+                <button class="menu__submenu-btn">&gt;</button>
+              </div>
               <ul class="menu" data-depth="2">
                 <li class="menu__item"><a href="https://developer.mulesoft.com/getting-started/anypoint-platform" class="menu__link">APIs</a></li>
                 <li class="menu__item"><a href="https://developer.mulesoft.com/getting-started/studio" class="menu__link">Studio</a></li>
@@ -86,12 +100,21 @@
           </ul>
         </li>
         <li class="menu__item">
-          <a href="https://developer.mulesoft.com/community" class="menu__link">Community</a>
+          <div class="menu__item-header">
+            <button class="menu__parentmenu-btn">&lt;</button>
+            <a href="https://developer.mulesoft.com/community" class="menu__link">Community</a>
+            <button class="menu__submenu-btn">&gt;</button>
+          </div>
           <ul class="menu" data-depth="1">
             <li class="menu__item"><a href="http://forum.mulesoft.org/" class="menu__link">Developer Forums</a></li>
             <li class="menu__item"><a href="http://stackoverflow.com/search?q=mule" class="menu__link">Stack Overflow</a></li>
             <li class="menu__item"><a href="https://developer.mulesoft.com/events" class="menu__link">Developer Events</a></li>
-            <li class="menu__item"><a href="https://developer.mulesoft.com/user-groups-lp" class="menu__link">User Groups</a>
+            <li class="menu__item">
+              <div class="menu__item-header">
+                <button class="menu__parentmenu-btn">&lt;</button>
+                <a href="https://developer.mulesoft.com/user-groups-lp" class="menu__link">User Groups</a>
+                <button class="menu__submenu-btn">&gt;</button>
+              </div>
               <ul class="menu" data-depth="2">
                 <li class="menu__item"><a href="https://developer.mulesoft.com/start-user-group" class="menu__link">Start A User Group</a></li>
               </ul>
@@ -111,11 +134,13 @@
       </div>
     </div>
 
+    <button class="header__hamburger">MENU</button>
+
   </div>
 </header>
 <!-- /DUMMY HEADER -->
 
-<div class="container">
+<div class="main container">
   <div class="row sub-header" data-swiftype-index='false'>
     <div class="search-box col-md-3 col-xs-6">
       <form action="">
@@ -379,5 +404,6 @@
     document.getElementsByTagName('head')[0].appendChild(s);
   })();
 </script>
+<script src="/js/header-menu.js"></script>
 </body>
 </html>
