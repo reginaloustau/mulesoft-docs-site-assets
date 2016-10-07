@@ -44,7 +44,7 @@
 </style>
 <!-- END Swiftype -->
 <!-- START header -->
-<header class="header" data-swiftype-index='false'>
+<header class="header" data-swiftype-index="false">
   <div class="container">
 
     <a href="/" title="Home" rel="home" class="header__logo">
@@ -141,7 +141,7 @@
 <!-- /DUMMY HEADER -->
 
 <div class="main container">
-  <div class="row sub-header" data-swiftype-index='false'>
+  <div class="row sub-header" data-swiftype-index="false">
     <div class="search-box col-md-3 col-xs-6">
       <form action="">
         <i class="glyphicon glyphicon-search"></i><input class="search-field st-ui-search-input st-default-search-input" type="text" name="search-docs" placeholder="Search the docs">
@@ -192,7 +192,7 @@
     </div>
   </div>
   <div class="row">
-    <div class="sidebar-nav col-md-3" data-swiftype-index='false'>
+    <div class="sidebar-nav col-md-3" data-swiftype-index="false">
       <nav>
         <div class="marker"></div>
         <div class="active-marker"></div>
@@ -218,48 +218,48 @@
   </div>
 </div>
 <!-- START footer -->
-<div class="footer" data-swiftype-index='false'>
+<div class="footer" data-swiftype-index="false">
 
   <div class="footer__container container">
-      <div class="footer__top">
-        <div class="footer__connect">
-          <h2 class="footer__connect-title">Sign up for our Dev newsletter</h2>
-          <script src="//app-abd.marketo.com/js/forms2/js/forms2.min.js"></script>
-          <form id="mktoForm_415">
-          </form>
-          <script>
-            MktoForms2.loadForm("//app-abd.marketo.com", "564-SZS-136", 415);
-          </script>
-          <script>
-            MktoForms2.whenReady(function (form) {
-              // Custom code here
-            });
-          </script>
-        </div>
-        <div class="footer__menu-tac">
-          <ul class="footer__menu">
-            <li class="footer__menu-item"><a href="https://www.mulesoft.com/">Mulesoft.com</a></li>
-            <li class="footer__menu-item"><a href="http:/blogs.mulesoft.com/">Blog</a></li>
-          </ul>
-          <div class="footer__tac">
-            MuleSoft provides the most widely used integration platform for connecting SaaS and enterprise applications in the cloud and on-premise. Delivered as a packaged integration experience, CloudHub™ and Mule ESB™ (Enterprise Service Bus) are built on proven open source technology for the fastest, most reliable on-premise and cloud integration without vendor lock-in.
-          </div>
-        </div>
+    <div class="footer__top">
+      <div class="footer__connect">
+        <h2 class="footer__connect-title">Sign up for our Dev newsletter</h2>
+        <script src="//app-abd.marketo.com/js/forms2/js/forms2.min.js"></script>
+        <form id="mktoForm_415">
+        </form>
+        <script>
+          MktoForms2.loadForm("//app-abd.marketo.com", "564-SZS-136", 415);
+        </script>
+        <script>
+          MktoForms2.whenReady(function (form) {
+            // Custom code here
+          });
+        </script>
       </div>
-      <div class="footer__bottom">
-        <a href="/" title="Home" rel="home" class="footer__logo">
-          <img src="/img/mulesoft_dev_logo_v2.svg" alt="Home">
-        </a>
-        <ul class="footer__social-links">
-          <li class="social-item"><a href="https://www.mulesoft.com/lp/contact" target="_blank" class="social-link social-link-phone"></a></li>
-          <li class="social-item"><a href="https://www.linkedin.com/grp/home?gid=6936034" target="_blank" class="social-link social-link-linkedin"></a></li>
-          <li class="social-item"><a href="https://twitter.com/muledev" target="_blank" class="social-link social-link-twitter"></a></li>
-          <li class="social-item"><a href="https://www.facebook.com/MuleSoft" target="_blank" class="social-link social-link-facebook"></a></li>
-          <li class="social-item"><a href="mailto:devrel@mulesoft.com" target="_blank" class="social-link social-link-email"></a></li>
-          <li class="social-item"><a href="" target="_blank" class="social-link social-link-youtube"></a></li>
+      <div class="footer__menu-tac">
+        <ul class="footer__menu">
+          <li class="footer__menu-item"><a href="https://www.mulesoft.com/">Mulesoft.com</a></li>
+          <li class="footer__menu-item"><a href="http:/blogs.mulesoft.com/">Blog</a></li>
         </ul>
-        <div class="footer__copyright"><span>©2016</span> MuleSoft, INC.</div>
+        <div class="footer__tac">
+          MuleSoft provides the most widely used integration platform for connecting SaaS and enterprise applications in the cloud and on-premise. Delivered as a packaged integration experience, CloudHub™ and Mule ESB™ (Enterprise Service Bus) are built on proven open source technology for the fastest, most reliable on-premise and cloud integration without vendor lock-in.
+        </div>
       </div>
+    </div>
+    <div class="footer__bottom">
+      <a href="/" title="Home" rel="home" class="footer__logo">
+        <img src="/img/mulesoft_dev_logo_v2.svg" alt="Home">
+      </a>
+      <ul class="footer__social-links">
+        <li class="social-item"><a href="https://www.mulesoft.com/lp/contact" target="_blank" class="social-link social-link-phone"></a></li>
+        <li class="social-item"><a href="https://www.linkedin.com/grp/home?gid=6936034" target="_blank" class="social-link social-link-linkedin"></a></li>
+        <li class="social-item"><a href="https://twitter.com/muledev" target="_blank" class="social-link social-link-twitter"></a></li>
+        <li class="social-item"><a href="https://www.facebook.com/MuleSoft" target="_blank" class="social-link social-link-facebook"></a></li>
+        <li class="social-item"><a href="mailto:devrel@mulesoft.com" target="_blank" class="social-link social-link-email"></a></li>
+        <li class="social-item"><a href="" target="_blank" class="social-link social-link-youtube"></a></li>
+      </ul>
+      <div class="footer__copyright"><span>©2016</span> MuleSoft, INC.</div>
+    </div>
   </div>
 
 </div>
