@@ -1,7 +1,7 @@
 @import "variables";
 
 .footer {
-  background-color: @bgColorDark;
+  background-color: @mulesoft-footer-bg-color;
   padding: 60px 0 80px;
 }
 
@@ -125,12 +125,13 @@
 
 .footer__copyright {
   color: @mulesoft-light-blue;
+  font-size: 15px;
 }
 
 @media screen and (max-width: 768px) {
 
   .footer {
-    padding: 26px 10px;
+    padding: 26px 10px 20px 10px;
   }
 
   .footer__top,
@@ -140,5 +141,9 @@
 
   .footer__logo {
     display: none;
+  }
+
+  .footer__copyright {
+    margin-top: @footerSpace * 2;
   }
 }

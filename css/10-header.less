@@ -36,7 +36,7 @@ body.off-canvas--active:before {
 }
 
 .header {
-  background-color: @bgColorDark;
+  background-color: @mulesoft-header-bg-color;
   position: relative;
   z-index: 3;
 }
@@ -45,7 +45,7 @@ body.off-canvas--active:before {
   display: block;
   float: left;
   height: @headerHeight;
-  padding: 10px 0;
+  padding: 7px 0 11px 0;
 }
 
 .header__logo img {
@@ -58,7 +58,7 @@ body.off-canvas--active:before {
   position: relative;
 
   @media (max-width: @menuBreakpoint) {
-    background-color: @bgColor;
+    background-color: @mulesoft-offscreen-menu-category-bg-color;
     bottom: 0;
     flex-direction: column;
     left: 100%;
@@ -76,6 +76,7 @@ body.off-canvas--active:before {
   margin: 0;
 
   @media (max-width: @menuBreakpoint) {
+    background-color: @mulesoft-offscreen-menu-bg-color;
     padding: 10px 0;
 
     // depth = 0
@@ -92,6 +93,10 @@ body.off-canvas--active:before {
       display: block;
       flex: 1 0 0;
       overflow: auto;
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        width: 0;
+      }
     }
   }
 
@@ -102,11 +107,12 @@ body.off-canvas--active:before {
     // depth = 0
     &[data-depth="0"] {
       display: flex;
+      margin-right: 40px;
     }
 
     // depth > 0
     &[data-depth="0"] & {
-      background: @bgColor;
+      background: @mulesoft-header-menu-bg-color;
       display: none;
       left: 0;
       min-width: 200px;
@@ -128,7 +134,7 @@ body.off-canvas--active:before {
     // small triangle above level 1 menus
     @triangleSize: 12px;
     .menu__item:hover > &[data-depth="1"]:before {
-      border-bottom: @triangleSize solid @bgColor;
+      border-bottom: @triangleSize solid @mulesoft-header-menu-bg-color;
       border-left: @triangleSize solid transparent;
       border-right: @triangleSize solid transparent;
       content: '';
@@ -148,7 +154,6 @@ body.off-canvas--active:before {
     flex-direction: column;
 
     &.menu__item--active {
-      background-color: @bgColor;
       height: 100%;
       left: 0;
       position: absolute;
@@ -164,7 +169,7 @@ body.off-canvas--active:before {
   display: flex;
 
   .menu__item--active > & {
-    background-color: @bgColorDark;
+    background-color: @mulesoft-offscreen-menu-category-bg-color;
   }
 }
 
@@ -201,15 +206,16 @@ body.off-canvas--active:before {
   }
 
   @media (min-width: @menuBreakpointPlusOne) {
-    font-size: 16px;
+    font-size: 15px;
 
     // depth = 0
     .menu[data-depth="0"] > .menu__item > &,
     .menu[data-depth="0"] > .menu__item > .menu__item-header > & {
+      font-size: 16px;
       color: #fff;
       height: @headerHeight;
       line-height: @headerHeight;
-      padding: 0 10px;
+      padding: 0 12px;
 
       &:hover {
         color: @mulesoft-light-blue;
@@ -218,7 +224,7 @@ body.off-canvas--active:before {
 
     // depth >= 1
     .menu[data-depth="1"] & {
-      color: @grey;
+      color: @mulesoft-header-menu-link-color;
       height: 40px;
       line-height: 40px;
       padding: 0 20px;
@@ -297,7 +303,7 @@ body.off-canvas--active:before {
 
   @media (max-width: @menuBreakpoint) {
     align-items: center;
-    background-color: @bgColorDark;
+    background-color: @mulesoft-offscreen-menu-category-bg-color;
     display: flex;
     order: -1;
     justify-content: center;

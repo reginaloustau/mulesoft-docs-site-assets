@@ -21,15 +21,15 @@
     }
   });
 
-  $('.header__wrapper').click(function (event) {
+  $('.header__wrapper').click(function (e) {
     // don't let event propagate to body
-    event.stopPropagation();
+    e.stopPropagation();
   });
 
-  $('.header__hamburger').click(function () {
+  $('.header__hamburger').click(function (e) {
     toggleHeaderMenu();
     // don't let event propagate to body
-    event.stopPropagation();
+    e.stopPropagation();
   });
 
   $('.menu__submenu-btn').click(function () {
