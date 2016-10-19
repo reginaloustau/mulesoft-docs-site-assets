@@ -2,7 +2,8 @@
 
 .sub-header {
   font-family: "OpenSans", Helvetica, Arial, sans-serif;
-  z-index: 999;
+  // NOTE z-index must be above floating section anchor, which is 1001
+  z-index: 1002;
   top: 0;
 
   .search-box {
@@ -106,7 +107,6 @@
         padding: 0 15px 15px 15px;
         position: absolute;
         top: 100%;
-        z-index: 1000;
         margin: 0px;
         font-size: 14px;
         text-align: left;
@@ -159,6 +159,9 @@
       }
       &.helpful {
         position: relative;
+        .dropdown-toggle {
+          z-index: 1002;
+        }
         .dropdown-menu {
           left: -68px;
           top: -17px;
