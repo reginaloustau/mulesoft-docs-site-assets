@@ -1,0 +1,149 @@
+@import "variables";
+
+.footer {
+  background-color: @mulesoft-footer-bg-color;
+  padding: 60px 0 80px;
+}
+
+@footerSpace: 20px;
+
+.footer__top {
+  display: flex;
+}
+
+.footer__connect {
+  // temp while we implement nice newsletter form
+  display: none;
+  margin-bottom: @footerSpace;
+}
+
+.footer__connect-title {
+  color: #fff;
+  font-family: openSans, Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  margin: 0;
+}
+
+.footer__menu-tac {
+  flex: 1 1 0;
+  order: -1;
+  margin-right: @footerSpace;
+}
+
+.footer__menu {
+  font-size: 13px;
+  font-weight: bold;
+  list-style: none;
+  margin: 0 0 10px 0;
+}
+
+.footer__menu-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.footer__menu-item a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer__tac {
+  color: #6D6E71;
+  font-family: openSans, Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  line-height: 22px;
+  margin-bottom: @footerSpace;
+  max-width: 700px;
+}
+
+.footer__bottom {
+  border-top: 1px solid @mulesoft-light-blue;
+  display: flex;
+  text-align: center;
+}
+
+.footer__logo,
+.footer__social-links,
+.footer__copyright {
+  height: 30px;
+  line-height: 30px;
+  margin: @footerSpace 0 0 0;
+}
+
+.footer__logo {
+  display: block;
+}
+
+.footer__logo img {
+  height: 100%;
+}
+
+.footer__social-links {
+  list-style: none;
+  flex: 1 1 0;
+}
+
+.social-item,
+.social-link {
+  height: 100%;
+  width: 44px;
+}
+
+.social-item {
+  display: inline-block;
+}
+
+.social-link {
+  display: block;
+  background: url(../img/header_footer_sprite.svg) no-repeat;
+  background-size: 1200px auto;
+}
+
+.social-link-phone {
+  background-position: -914px -33px;
+}
+
+.social-link-linkedin {
+  background-position: -661px -33px;
+}
+
+.social-link-twitter {
+  background-position: -707px -33px;
+}
+
+.social-link-facebook {
+  background-position: -753px -33px;
+}
+
+.social-link-email {
+  background-position: -803px -33px;
+}
+
+.social-link-youtube {
+  background-position: -853px -33px;
+}
+
+.footer__copyright {
+  color: @mulesoft-light-blue;
+  font-size: 15px;
+}
+
+@media screen and (max-width: 768px) {
+
+  .footer {
+    padding: 26px 10px 20px 10px;
+  }
+
+  .footer__top,
+  .footer__bottom {
+    display: block;
+  }
+
+  .footer__logo {
+    display: none;
+  }
+
+  .footer__copyright {
+    margin-top: @footerSpace * 2;
+  }
+}
