@@ -115,7 +115,7 @@
   font-family: "OpenSans", Helvetica, Arial, sans-serif;
   font-size: 14px;
   line-height: 21px;
-  color: #58595a;
+  color: @mulesoft-dark-grey;
 }
 
 .article-content h1 {
@@ -205,11 +205,6 @@
 .article-content table.tableblock {
   border-collapse: collapse;
 }
-.article-content table.tableblock>.title {
-  color: #00a2e3;
-  font-style: normal;
-  font-family: "OpenSans", Helvetica, Arial, sans-serif;
-}
 
 /* Ordered Lists */
 
@@ -237,7 +232,7 @@
 .article-content ol li:before {
   content: counter(li);
   counter-increment: li;
-  color: #58595a;
+  color: @mulesoft-dark-grey;
   background: #f4f5f7;
   border-radius: 50%;
   width: 21px;
@@ -460,7 +455,7 @@ pre > code {
   border-radius: 0;
   border: none;
   border-top: 4px solid @mulesoft-light-grey;
-  color: #6a6b6d;
+  color: @mulesoft-links-unselected;
 }
 .article-content .nav-tabs li a:hover {
   border-radius: 0;
@@ -527,4 +522,32 @@ pre > code {
   .article-content .listingblock > .content .line-numbers pre {
     line-height: 2;
   }
+}
+
+.admonitionblock td.content > .title,
+.audioblock > .title,
+.exampleblock > .title,
+.imageblock > .title,
+.listingblock > .title,
+.literalblock > .title,
+.stemblock > .title,
+.openblock > .title,
+.paragraph > .title,
+.quoteblock > .title,
+table.tableblock > .title,
+.verseblock > .title,
+.videoblock > .title,
+.dlist > .title,
+.olist > .title,
+.ulist > .title,
+.qlist > .title,
+.hdlist > .title {
+  color: @mulesoft-light-blue;
+  font-family: OpenSans, Helvetica, Arial, sans-serif;
+  font-style: normal;
+  font-size: 13px;
+}
+
+.listingblock > .title {
+  width: 80%;
 }
