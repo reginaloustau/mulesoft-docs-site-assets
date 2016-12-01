@@ -20,7 +20,7 @@
     list-style: none;
     margin: 0;
     a {
-      color: @mulesoft-dark-grey;
+      color: @mulesoft-really-dark-grey;
       display: inline-block;
       font-size: 13px;
       text-decoration: none;
@@ -40,6 +40,7 @@
       }
       + a {
         padding: 9px 0 9px 23.5px;
+        font-size: 14px;
       }
     }
     i.glyphicon-chevron-right::before {
@@ -93,6 +94,42 @@
   }
   .active-marker {
     background: @mulesoft-light-blue;
+  }
+  nav ul ul li {
+    font-size: 12.5px;
+  }
+  nav ul ul i.glyphicon-chevron-right+a,nav ul ul i.glyphicon-chevron-down+a {
+    font-size: 13px;
+    padding: 9px 0 9px 23.5px;
+  }
+  nav ul ul ul li a {
+    font-size: 11.5px;
+  }
+  nav ul ul ul i.glyphicon-chevron-right+a, nav ul ul ul i.glyphicon-chevron-down+a {
+    font-size: 12px;
+    padding: 9px 0 9px 23.5px;
+  }
+  nav ul ul i.glyphicon-chevron-right::before,nav ul ul i.glyphicon-chevron-down::before {
+    content: "";
+    cursor: pointer;
+    display: inherit;
+    height: 19px;
+    position: relative;
+    width: 19px;
+    background: url(../img/nav-collapse.svg) center center no-repeat;
+    left: -3px;
+    top: 11px;
+  }
+  nav ul ul ul i.glyphicon-chevron-right::before, nav ul ul ul i.glyphicon-chevron-down::before {
+    content: "";
+    cursor: pointer;
+    display: inherit;
+    height: 17px;
+    position: relative;
+    width: 17px;
+    background: url(../img/nav-collapse.svg) center center no-repeat;
+    left: -3px;
+    top: 11px;
   }
 }
 
