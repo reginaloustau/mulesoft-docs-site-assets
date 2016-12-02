@@ -315,7 +315,7 @@ function initSiteNav() {
 
     // NOTE order of event registration is intentional
     nav.on('affix.bs.affix', electAffixBehavior);
-    nav.affix({ offset: calcAffixOffset() });
+    //nav.affix({ offset: calcAffixOffset() });
     // NOTE affixed events only triggered if subject is visible
     nav.on('init affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateNavDimensions).trigger('init');
     $(window).resize(updateNavDimensions);
