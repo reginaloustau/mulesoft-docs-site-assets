@@ -116,7 +116,6 @@
     height: 19px;
     position: relative;
     width: 19px;
-    background: url(../img/nav-collapse.svg) center center no-repeat;
     left: -3px;
     top: 11px;
   }
@@ -127,9 +126,14 @@
     height: 17px;
     position: relative;
     width: 17px;
-    background: url(../img/nav-collapse.svg) center center no-repeat;
     left: -3px;
     top: 11px;
+  }
+  nav ul ul i.glyphicon-chevron-right::before,nav ul ul ul i.glyphicon-chevron-right::before {
+    background: url(../img/nav-collapse.svg) center center no-repeat;
+  }
+  nav ul ul i.glyphicon-chevron-down::before,nav ul ul ul i.glyphicon-chevron-down::before {
+    background: url(../img/nav-expand.svg) center center no-repeat;
   }
 }
 
