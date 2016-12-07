@@ -253,13 +253,13 @@ function initSiteNav() {
             var navHeight = Math.min(articleHeight, window.innerHeight - (nav.offset().top - $(window).scrollTop()));
             // NOTE using height instead of max-height provides a slighly smoother experience
             // NOTE due to layout, height of sidebar column must exceed height of notification bar
-            nav.css('height', navHeight).parent().css('height', navHeight);
+            //nav.css('height', navHeight).parent().css('height', navHeight);
         },
         lockNavHeight = function() {
             var navHeight = Math.min(articleHeight, window.innerHeight - subHeader.height());
             // NOTE using height instead of max-height provides a slighly smoother experience
             // NOTE due to layout, height of sidebar column must exceed height of notification bar
-            nav.css('height', navHeight).parent().css('height', navHeight);
+            //nav.css('height', navHeight).parent().css('height', navHeight);
         },
         updateNavWidth = function() {
             nav.css('width', Math.floor(nav.parent()[0].getBoundingClientRect().width));
