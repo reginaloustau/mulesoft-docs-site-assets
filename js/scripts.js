@@ -253,13 +253,13 @@ function initSiteNav() {
             var navHeight = Math.min(articleHeight, window.innerHeight - (nav.offset().top - $(window).scrollTop()));
             // NOTE using height instead of max-height provides a slighly smoother experience
             // NOTE due to layout, height of sidebar column must exceed height of notification bar
-            nav.css('height', navHeight).parent().css('height', navHeight);
+            //nav.css('height', navHeight).parent().css('height', navHeight);
         },
         lockNavHeight = function() {
             var navHeight = Math.min(articleHeight, window.innerHeight - subHeader.height());
             // NOTE using height instead of max-height provides a slighly smoother experience
             // NOTE due to layout, height of sidebar column must exceed height of notification bar
-            nav.css('height', navHeight).parent().css('height', navHeight);
+            //nav.css('height', navHeight).parent().css('height', navHeight);
         },
         updateNavWidth = function() {
             nav.css('width', Math.floor(nav.parent()[0].getBoundingClientRect().width));
@@ -315,7 +315,7 @@ function initSiteNav() {
 
     // NOTE order of event registration is intentional
     nav.on('affix.bs.affix', electAffixBehavior);
-    nav.affix({ offset: calcAffixOffset() });
+    //nav.affix({ offset: calcAffixOffset() });
     // NOTE affixed events only triggered if subject is visible
     nav.on('init affixed-top.bs.affix affixed.bs.affix affixed-bottom.bs.affix', updateNavDimensions).trigger('init');
     $(window).resize(updateNavDimensions);
