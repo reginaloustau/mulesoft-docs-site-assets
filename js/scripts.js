@@ -410,3 +410,23 @@ function fixEncoding() {
         $(this).html(curCont.replace('&amp;', '&'));
     });
 }
+
+// Marketo Last campaing
+tsh = new trafficSourceHelper();
+tsh.createCookies();
+lastCampaign({domain: '.mulesoft.com'});
+
+if (typeof MktoForms2 === 'object') {
+    MktoForms2.whenReady(function (form) {
+
+        // Add hidden fields
+        form.addHiddenFields({
+            Web_Campaign__c: getCookieForMarketo('utm_campaign'),
+            Web_Source__c: getCookieForMarketo('utm_source'),
+            Webmeduim__c: getCookieForMarketo('utm_medium'),
+            Web_Keyword__c: getCookieForMarketo('utm_term'),
+            Web_Content__c: getCookieForMarketo('utm_content')
+        });
+    });
+}
+
