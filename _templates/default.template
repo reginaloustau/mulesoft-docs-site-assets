@@ -30,7 +30,7 @@
     e.parentNode.insertBefore(s, e);
   })(window, document, 'script', '//s.swiftypecdn.com/install/v2/st.js', '_st');
 
-  _st('install', 'Y6NSC3YWFiMQgK63xPb7', '2.0.0');
+  _st('install', 'VXBXCpAYp5vkK27nErcf', '2.0.0');
 </script>
 <style>
   .st-autocomplete-results, .st-ui-autocomplete {
