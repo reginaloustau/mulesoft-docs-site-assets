@@ -57,6 +57,10 @@ body.off-canvas--active:before {
   display: flex;
   float: right;
   position: relative;
+  display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;      /* TWEENER - IE 10 */
+  display: -webkit-flex;
 
   @media (max-width: @menuBreakpoint) {
     background-color: @mulesoft-offscreen-menu-category-bg-color;
@@ -149,10 +153,13 @@ body.off-canvas--active:before {
 
 .menu__item {
   position: relative;
+  float: left;
+
 
   @media (max-width: @menuBreakpoint) {
     display: flex;
     flex-direction: column;
+    float: none;
 
     &.menu__item--active {
       height: 100%;
@@ -168,6 +175,10 @@ body.off-canvas--active:before {
 .menu__item-header {
 
   display: flex;
+  display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+  display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+  display: -ms-flexbox;      /* TWEENER - IE 10 */
+  display: -webkit-flex;     /* NEW - Chrome */
 
   .menu__item--active > & {
     background-color: @mulesoft-offscreen-menu-category-bg-color;
@@ -186,6 +197,11 @@ body.off-canvas--active:before {
 
   .menu__item-header & {
     flex: 1 0 0;
+    -webkit-box-flex: 1;      /* OLD - iOS 6-, Safari 3.1-6 */
+    -moz-box-flex: 1;         /* OLD - Firefox 19- */
+    width: 20%;               /* For old syntax, otherwise collapses. */
+    -webkit-flex: 1;          /* Chrome */
+    -ms-flex: 1;              /* IE 10 */
   }
 
   @media (max-width: @menuBreakpoint) {
@@ -381,3 +397,18 @@ body.off-canvas--active:before {
     display: none;
   }
 }
+@media screen and (max-width:992px) {
+  .container-fluid {
+    margin-left:auto; margin-right:auto;
+  }
+}
+_:-ms-lang(x), _:-webkit-full-screen,
+.menu[data-depth="0"]>.menu__item>.menu__link, .menu[data-depth="0"]>.menu__item>.menu__item-header>.menu__link {
+  padding: 0 50px;
+}
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  .menu[data-depth="0"]>.menu__item>.menu__link, .menu[data-depth="0"]>.menu__item>.menu__item-header>.menu__link {
+    padding: 0 50px;
+  }
+}
+

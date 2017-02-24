@@ -67,7 +67,7 @@ body{
 }
 
 // FIXME this nth-child is very ambiguous (doesn't consider CSS class)
-.container .row:nth-child(2) {
+.container-fluid .row:nth-child(2) {
   background: #fff; /* Old browsers */
   background: -moz-linear-gradient(left,   #f4f5f6,#f4f5f6 25%,#ffffff 25%,#ffffff 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, right top, color-stop(0%,#f4f5f6), color-stop(25%,#f4f5f6), color-stop(25%,#ffffff), color-stop(100%,#ffffff)); /* Chrome,Safari4+ */
@@ -78,7 +78,7 @@ body{
 }
 
 @media (max-width: 992px) {
-  .container .row:nth-child(2) {
+  .container-fluid .row:nth-child(2) {
     background: #fff;
   }
 }

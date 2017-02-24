@@ -48,7 +48,7 @@
 <!-- END Swiftype -->
 <!-- START header -->
 <header class="header" data-swiftype-index="false">
-  <div class="container">
+  <div class="container-fluid">
 
     <a href="/" title="Home" rel="home" class="header__logo">
       <img src="/img/mulesoft-dev-logo.svg" alt="Home">
@@ -147,7 +147,7 @@
 </header>
 <!-- /DUMMY HEADER -->
 
-<div class="main container">
+<div class="main container-fluid">
   <div class="row sub-header" data-swiftype-index="false">
     <div class="search-box col-md-3 col-xs-6">
       <form action="">
@@ -227,7 +227,7 @@
 <!-- START footer -->
 <div class="footer" data-swiftype-index="false">
 
-  <div class="footer__container container">
+  <div class="footer__container container-fluid">
     <div class="footer__top">
       <div class="footer__connect">
         <h2 class="footer__connect-title">Sign up for our Dev newsletter</h2>
